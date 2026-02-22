@@ -22,10 +22,10 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-slate-300 flex">
+      <div className="min-h-screen overflow-x-hidden bg-slate-300 ">
 
         <Sidebar />
-        <main className="flex-1 md:ml-64 p-8 pt-24 md:pt-8 transition-all">
+        <main className="md:ml-64 px-4 md:px-8 pb-8 pt-24 md:pt-8 transition-all">
           <Routes>
             <Route path="/" element={<Dashboard session={session} />} />
             <Route path="/stats" element={<Analytics session={session} />} />
