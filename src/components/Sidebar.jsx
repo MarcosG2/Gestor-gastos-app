@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { LayoutDashboard, PieChart, Layers, User, LogOut, Menu, X } from 'lucide-react' 
+import { LayoutDashboard, PieChart, Layers, User, LogOut, Menu, X, Download } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 
@@ -7,6 +7,8 @@ export default function Sidebar() {
     const location = useLocation()
     const [userName, setUserName] = useState('Usuario')
     const [isMobileOpen, setIsMobileOpen] = useState(false)
+    const [isInstallable, setIsInstallable] = useState(false)
+    const [deferredPrompt, setDeferredPrompt] = useState(null)
 
     useEffect(() => {
         const getUserName = async () => {
@@ -20,6 +22,38 @@ export default function Sidebar() {
         }
         getUserName()
     }, [])
+
+    useEffect(() => {
+        const handleBeforeInstallPrompt = (e) => {
+            e.preventDefault()
+            setDeferredPrompt(e)
+            setIsInstallable(true)
+        }
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+        }
+    }, [])
+
+    const handleInstallClick = async () => {
+        if (!deferredPrompt) return
+
+        // Mostramos la ventanita nativa del celular para instalar
+        deferredPrompt.prompt()
+
+        // Esperamos a ver si el usuario aceptó o canceló
+        const { outcome } = await deferredPrompt.userChoice
+
+        // Si aceptó, escondemos el botón para siempre
+        if (outcome === 'accepted') {
+            setIsInstallable(false)
+        }
+
+        // Limpiamos la variable
+        setDeferredPrompt(null)
+    }
 
     const menuItems = [
         { icon: LayoutDashboard, text: 'Panel', path: '/' },
@@ -75,7 +109,7 @@ export default function Sidebar() {
                             <Link
                                 key={item.path}
                                 to={item.path}
-                                onClick={() => setIsMobileOpen(false)} 
+                                onClick={() => setIsMobileOpen(false)}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${isActive
                                     ? 'bg-indigo-50 text-indigo-600 shadow-sm'
                                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
@@ -88,7 +122,17 @@ export default function Sidebar() {
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-gray-50">
+
+                <div className="p-4 border-t border-gray-50 flex flex-col gap-2">
+                    {isInstallable && (
+                        <button
+                            onClick={handleInstallClick}
+                            className="flex items-center justify-center gap-3 px-4 py-3 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 w-full rounded-xl transition-colors font-bold shadow-sm"
+                        >
+                            <Download className="w-5 h-5" />
+                            Instalar App
+                        </button>
+                    )}
                     <button
                         onClick={() => supabase.auth.signOut()}
                         className="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 w-full rounded-xl transition-colors font-medium"

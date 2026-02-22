@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../supabaseClient'
-import { PlusCircle, Wallet, Tag, Trash2, Pencil, X } from 'lucide-react' 
+import { PlusCircle, Wallet, Tag, Trash2, Pencil, X } from 'lucide-react'
 
 export default function Dashboard({ session }) {
     const [amount, setAmount] = useState('')
@@ -9,22 +9,26 @@ export default function Dashboard({ session }) {
     const [categories, setCategories] = useState([])
     const [expenses, setExpenses] = useState([])
     const [loading, setLoading] = useState(false)
+    const [isLoadingData, setIsLoadingData] = useState(true)
     const [editingId, setEditingId] = useState(null)
 
     useEffect(() => { fetchData() }, [])
 
     const fetchData = async () => {
+        setIsLoadingData(true)
         const user = session.user
         let { data: cats } = await supabase.from('categories').select('*').eq('user_id', user.id)
         setCategories(cats || [])
 
-        
+
+
         const { data: exp } = await supabase
             .from('expenses')
             .select('*, categories(*)')
             .order('created_at', { ascending: false })
-            .limit(10) 
+            .limit(10)
         setExpenses(exp || [])
+        setIsLoadingData(false)
     }
 
 
@@ -91,6 +95,9 @@ export default function Dashboard({ session }) {
         }
         setLoading(false)
     }
+    const totalGastos = useMemo(() => {
+        return expenses.reduce((sum, item) => sum + item.amount, 0);
+    }, [expenses]);
 
     return (
         <div className="grid md:grid-cols-2 gap-8">
@@ -165,11 +172,11 @@ export default function Dashboard({ session }) {
                 </form>
             </div>
 
-            
+
             <div className="space-y-6">
                 <div className="bg-gradient-to-br from-slate-800 to-slate-900 text-white p-6 rounded-3xl shadow-lg">
                     <p className="text-slate-400 text-sm mb-1">Total gastado </p>
-                    <h3 className="text-4xl font-bold">$ {expenses.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}</h3>
+                    <h3 className="text-4xl font-bold">$ {totalGastos.toLocaleString()}</h3>
                 </div>
 
                 <div>
@@ -179,41 +186,60 @@ export default function Dashboard({ session }) {
                     </h3>
 
                     <div className="space-y-3">
-                        {expenses.map((expense) => (
-                            <div key={expense.id} className="bg-white p-5 rounded-2xl shadow-md border border-gray-100 flex justify-between items-center group hover:shadow-lg transition-all">
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${expense.categories?.color || 'bg-gray-100'}`}>
-                                        <Tag className="w-5 h-5 opacity-70" />
+                        {isLoadingData ? (
+                            <div className="animate-pulse space-y-4 w-full">
+                                {[1, 2, 3, 4].map((n) => (
+                                    <div key={n} className="h-20 bg-white border border-gray-100 rounded-2xl w-full flex items-center justify-between px-6 shadow-sm">
+                                        <div className="flex gap-4 items-center">
+                                            <div className="w-10 h-10 bg-slate-200 rounded-full"></div>
+                                            <div className="space-y-2">
+                                                <div className="w-24 h-4 bg-slate-200 rounded"></div>
+                                                <div className="w-32 h-3 bg-slate-200 rounded"></div>
+                                            </div>
+                                        </div>
+                                        <div className="w-16 h-6 bg-slate-200 rounded"></div>
                                     </div>
-                                    <div>
-                                        <p className="font-bold text-gray-800">{expense.categories?.name}</p>
-                                        <p className="text-xs text-gray-500">{expense.description || 'Sin detalle'}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-4">
-                                    <p className="font-bold text-red-500">
-                                        - ${expense.amount.toLocaleString()}
-                                    </p>
-
-                                    
-                                    <div className="flex gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button
-                                            onClick={() => handleEditClick(expense)}
-                                            className="p-2 text-gray-400 hover:text-orange-500 hover:bg-orange-50 rounded-lg"
-                                        >
-                                            <Pencil className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(expense.id)}
-                                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
-                        ))}
+                        ) : expenses.length === 0 ? (
+                            <p className="text-gray-500 text-center py-4 font-medium">No hay gastos registrados aún.</p>
+                        ) : (
+                            expenses.map((expense) => (
+                                <div key={expense.id} className="bg-white p-5 rounded-2xl shadow-md border border-gray-100 flex justify-between items-center group hover:shadow-lg transition-all">
+                                    <div className="flex items-center gap-4">
+                                        {/* Ajuste menor: Validar color sino usar bg-gray-100 */}
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${expense.categories?.color || 'bg-gray-100'}`}>
+                                            <Tag className="w-5 h-5 opacity-70" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-gray-800">{expense.categories?.name}</p>
+                                            <p className="text-xs text-gray-500">{expense.description || 'Sin detalle'}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-4">
+                                        <p className="font-bold text-red-500">
+                                            - ${expense.amount.toLocaleString()}
+                                        </p>
+
+                                        <div className="flex gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                onClick={() => handleEditClick(expense)}
+                                                className="p-2 text-gray-400 hover:text-orange-500 hover:bg-orange-50 rounded-lg"
+                                            >
+                                                <Pencil className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(expense.id)}
+                                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             </div>
