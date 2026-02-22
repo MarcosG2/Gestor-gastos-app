@@ -12,28 +12,35 @@ export default function Auth() {
     e.preventDefault()
     setLoading(true)
 
-    let result
-    if (isRegistering) {
-      result = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: fullName }
+    try {
+      if (isRegistering) {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+        })
+
+        if (error) throw error
+
+        if (data?.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert([
+              { id: data.user.id, full_name: fullName }
+            ])
+
+          if (profileError) throw profileError
         }
-      })
-    } else {
-      result = await supabase.auth.signInWithPassword({ email, password })
-    }
 
-    const { error } = result
-    if (error) {
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) throw error
+      }
+    } catch (error) {
       alert(error.message)
-    } else if (isRegistering) {
-      alert('¡Registro exitoso! Revisa tu bandeja de entrada falsa (puerto 54324).')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-300 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">

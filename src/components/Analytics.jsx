@@ -21,9 +21,6 @@ export default function Analytics({ session }) {
 
         if (data) {
 
-            const fechaActual = new Date();
-            const mesActual = fechaActual.getMonth();
-            const anioActual = fechaActual.getFullYear();
 
             const datosDelMes = data.filter(gasto => {
                 const fechaGasto = new Date(gasto.created_at);
@@ -122,7 +119,7 @@ export default function Analytics({ session }) {
                     <h3 className="font-bold text-gray-800 mb-6 text-lg">Top Gastos</h3>
                     <div className="space-y-4">
                         {chartData.length === 0 && <p className="text-gray-400">No hay datos aún.</p>}
-                        {chartData.sort((a, b) => b.value - a.value).map((item) => (
+                        {[...chartData].sort((a, b) => b.value - a.value).map((item) => (
                             <div key={item.name} className="flex justify-between items-center border-b border-gray-50 pb-3 last:border-0">
                                 <div className="flex items-center gap-3">
                                     <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: item.fill }}></div>
