@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from './supabaseClient'
+import { Loader } from "lucide-react";
 
 export default function Auth() {
   const [loading, setLoading] = useState(false)
@@ -92,10 +93,18 @@ export default function Auth() {
           </div>
 
           <button
+            type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 font-bold transition-all shadow-lg shadow-indigo-200"
+            className={`w-full py-3 rounded-xl font-bold text-white flex justify-center items-center gap-2 transition-all shadow-lg ${loading ? 'bg-indigo-400 cursor-not-allowed shadow-none' : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-200 active:scale-95'}`}
           >
-            {loading ? 'Procesando...' : (isRegistering ? 'Registrarse' : 'Iniciar Sesión')}
+            {loading ? (
+              <>
+                <Loader className="w-5 h-5 animate-spin" />
+                {isRegistering ? 'Creando cuenta...' : 'Iniciando sesión...'}
+              </>
+            ) : (
+              isRegistering ? 'Registrarse' : 'Iniciar Sesión'
+            )}
           </button>
         </form>
 

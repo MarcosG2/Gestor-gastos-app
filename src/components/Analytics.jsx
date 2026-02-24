@@ -54,12 +54,12 @@ export default function Analytics({ session }) {
         <div className="space-y-6">
             <h2 className="text-3xl font-bold text-gray-800">Análisis de Gastos</h2>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid lg:grid-cols-3 gap-8">
 
-                <div className="md:col-span-2 bg-white p-8 rounded-2xl shadow-sm border h-100 border-gray-100 min-h-[600px] flex flex-col gap-8">
+                <div className="lg:col-span-2 bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-8">
                     <h3 className="font-bold text-gray-800 mb-4 text-lg">Distribución Visual</h3>
                     {loading ? <p>Cargando...</p> : (
-                        <div className="flex-1 w-full min-h-0">
+                        <div className="w-full h-[400px] md:h-[500px]">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
@@ -78,7 +78,7 @@ export default function Analytics({ session }) {
                         </div>
                     )}
 
-                    <div className="flex justify-between items-center mt-6 bg-gray-50 p-2 rounded-lg">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-6 bg-gray-50 p-4 rounded-lg">
                         <button
                             onClick={() => {
                                 if (mesSeleccionado === 0) {
@@ -88,7 +88,8 @@ export default function Analytics({ session }) {
                                     setMesSeleccionado(mesSeleccionado - 1);
                                 }
                             }}
-                            className="px-4 py-2 bg-slate-300 text-gray-700 rounded-md hover:bg-slate-400 font-medium transition-colors"
+                            className="px-4 py-2 bg-slate-300 text-gray-700 rounded-md hover:bg-slate-400 font-medium transition-colors 
+                            "
                         >
                             &larr; Mes Anterior
                         </button>
@@ -115,7 +116,7 @@ export default function Analytics({ session }) {
                 </div>
 
 
-                <div className="bg-white p-8 rounded-3xl shadow-xl h-fit">
+                <div className="col-span-1 bg-white p-4 md:p-8 rounded-3xl shadow-xl h-fit">
                     <h3 className="font-bold text-gray-800 mb-6 text-lg">Top Gastos</h3>
                     <div className="space-y-4">
                         {chartData.length === 0 && <p className="text-gray-400">No hay datos aún.</p>}
