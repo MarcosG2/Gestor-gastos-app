@@ -48,9 +48,9 @@ function App() {
         <Auth />
       ) : (
         <BrowserRouter>
-          <div className="min-h-screen overflow-x-hidden bg-slate-300 ">
+          <div className="min-h-screen overflow-x-clip bg-slate-300">
             <Sidebar />
-            <main className="md:ml-64 px-4 md:px-8 pb-8 pt-24 md:pt-8 transition-all">
+            <main className="w-full min-w-0 max-w-full box-border md:ml-64 px-3 sm:px-4 md:px-8 pb-8 pt-24 md:pt-8 transition-all">
               <Suspense fallback={<div className="flex justify-center items-center mt-20 text-gray-500 font-medium animate-pulse">Cargando pantalla...</div>}>
                 <Routes>
                   <Route path="/" element={<Dashboard session={session} />} />

@@ -1,2 +1,20 @@
 @import "tailwindcss";
 
+html,
+body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+#root {
+  min-width: 0;
+  overflow-x: clip;
+}
+
+/* Evita que inputs nativos (fecha) desborden en Android/MIUI */
+input[type="date"],
+input[type="number"] {
+  max-width: 100%;
+  min-width: 0;
+}
+

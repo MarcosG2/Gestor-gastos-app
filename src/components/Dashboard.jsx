@@ -208,8 +208,8 @@ export default function Dashboard({ session }) {
   const isExpenseForm = entryMode === 'expense'
 
   return (
-    <div className="grid md:grid-cols-2 gap-8">
-      <div className="bg-white p-8 rounded-3xl shadow-xl border border-white/50 h-fit relative transition-all">
+    <div className="grid w-full min-w-0 max-w-full md:grid-cols-2 gap-5 md:gap-8">
+      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-3xl shadow-xl border border-white/50 h-fit relative min-w-0 transition-all">
         {(editingId || editingIncomeId) && (
           <div className="absolute top-4 right-4 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2">
             Modo Edición
@@ -240,7 +240,7 @@ export default function Dashboard({ session }) {
           </button>
         </div>
 
-        <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-6 flex flex-wrap items-center gap-2 pr-16">
           {isExpenseForm ? (
             <>
               {editingId ? <Pencil className="w-6 h-6 text-orange-500" /> : <PlusCircle className="w-6 h-6 text-indigo-600" />}
@@ -337,37 +337,38 @@ export default function Dashboard({ session }) {
         </form>
       </div>
 
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white p-5 rounded-2xl shadow-lg">
+      <div className="min-w-0 space-y-6">
+        <div className="grid grid-cols-1 gap-3 min-w-0">
+          <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white p-4 sm:p-5 rounded-2xl shadow-lg min-w-0">
             <p className="text-emerald-100 text-xs flex items-center gap-1 mb-1">
-              <TrendingUp className="w-3.5 h-3.5" /> Ingresos
+              <TrendingUp className="w-3.5 h-3.5 shrink-0" /> Ingresos
             </p>
-            <p className="text-2xl font-bold">{isLoadingData ? '…' : money(totalIngresosMes)}</p>
+            <p className="text-lg sm:text-2xl font-bold tabular-nums break-words">{isLoadingData ? '…' : money(totalIngresosMes)}</p>
           </div>
-          <div className="bg-gradient-to-br from-rose-600 to-rose-800 text-white p-5 rounded-2xl shadow-lg">
+          <div className="bg-gradient-to-br from-rose-600 to-rose-800 text-white p-4 sm:p-5 rounded-2xl shadow-lg min-w-0">
             <p className="text-rose-100 text-xs flex items-center gap-1 mb-1">
-              <TrendingDown className="w-3.5 h-3.5" /> Gastos
+              <TrendingDown className="w-3.5 h-3.5 shrink-0" /> Gastos
             </p>
-            <p className="text-2xl font-bold">{isLoadingData ? '…' : money(totalMes)}</p>
+            <p className="text-lg sm:text-2xl font-bold tabular-nums break-words">{isLoadingData ? '…' : money(totalMes)}</p>
           </div>
-          <div className="bg-gradient-to-br from-slate-700 to-slate-900 text-white p-5 rounded-2xl shadow-lg sm:col-span-1">
-            <p className="text-slate-300 text-xs flex items-center gap-1 mb-1 capitalize">
-              <Scale className="w-3.5 h-3.5" /> Balance — {mesLabel}
+          <div className="bg-gradient-to-br from-slate-700 to-slate-900 text-white p-4 sm:p-5 rounded-2xl shadow-lg min-w-0">
+            <p className="text-slate-300 text-xs flex items-center gap-1 mb-0.5">
+              <Scale className="w-3.5 h-3.5 shrink-0" /> Balance
             </p>
-            <p className={`text-2xl font-bold ${balanceMes < 0 ? 'text-rose-300' : 'text-emerald-300'}`}>
+            <p className="text-slate-400 text-[11px] capitalize mb-1 leading-tight">{mesLabel}</p>
+            <p className={`text-lg sm:text-2xl font-bold tabular-nums break-words ${balanceMes < 0 ? 'text-rose-300' : 'text-emerald-300'}`}>
               {isLoadingData ? '…' : money(balanceMes)}
             </p>
           </div>
         </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Wallet className="w-5 h-5 text-gray-500" />
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2 min-w-0">
+              <Wallet className="w-5 h-5 shrink-0 text-gray-500" />
               Últimos gastos
             </h3>
-            <Link to="/history" className="text-sm font-medium text-indigo-600 hover:underline">
+            <Link to="/history" className="text-sm font-medium text-indigo-600 hover:underline shrink-0">
               Ver historial
             </Link>
           </div>
