@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import { User, Mail, Calendar, Trash2, ShieldAlert, Edit2, Save, X, Loader2 } from 'lucide-react'
 import Modal from './Modal'
+import { useToast } from '../context/ToastContext'
+import { fetchProfileName, updateProfileName } from '../services/profiles'
 
 export default function Profile({ session }) {
+    const { showToast } = useToast()
     const [stats, setStats] = useState({ expenses: 0, categories: 0 })
     const [loading, setLoading] = useState(false)
     const [userName, setUserName] = useState('Usuario')
@@ -23,13 +26,9 @@ export default function Profile({ session }) {
     }, [])
 
     const getUserName = async () => {
-        const { data } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', session.user.id)
-            .single()
+        const { data } = await fetchProfileName(session.user.id)
 
-        if (data && data.full_name) {
+        if (data?.full_name) {
             setUserName(data.full_name)
         }
     }
@@ -46,18 +45,16 @@ export default function Profile({ session }) {
 
         setIsSaving(true)
         try {
-            const { error } = await supabase
-                .from('profiles')
-                .update({ full_name: editName })
-                .eq('id', session.user.id)
+            const { error } = await updateProfileName(session.user.id, editName)
 
             if (error) throw error
 
-            setUserName(editName)
+            setUserName(editName.trim())
             setIsEditing(false)
+            showToast('Nombre actualizado', 'success')
 
         } catch (error) {
-            alert('Error al actualizar el nombre: ' + error.message)
+            showToast('Error al actualizar el nombre: ' + error.message, 'error')
         } finally {
             setIsSaving(false)
         }
@@ -68,12 +65,15 @@ export default function Profile({ session }) {
         setIsResetModalOpen(false) 
 
         try {
-            await supabase.from('expenses').delete().eq('user_id', session.user.id)
-            await supabase.from('categories').delete().eq('user_id', session.user.id)
+            const { error: expError } = await supabase.from('expenses').delete().eq('user_id', session.user.id)
+            if (expError) throw expError
+            const { error: catError } = await supabase.from('categories').delete().eq('user_id', session.user.id)
+            if (catError) throw catError
 
-            setIsSuccssModalOpen(true) 
+            setIsSuccssModalOpen(true)
         } catch (error) {
-            console.log("Error al resetear:", error);
+            showToast('Error al resetear la cuenta', 'error')
+            console.error(error)
         } finally {
             setLoading(false)
         }

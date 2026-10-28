@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { LayoutDashboard, PieChart, Layers, User, LogOut, Menu, X, Download } from 'lucide-react'
+import { LayoutDashboard, PieChart, Layers, User, LogOut, Menu, X, Download, ScrollText, Target } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
+import { fetchProfileName } from '../services/profiles'
 
 export default function Sidebar() {
     const location = useLocation()
@@ -14,8 +15,8 @@ export default function Sidebar() {
         const getUserName = async () => {
             const { data: { user } } = await supabase.auth.getUser()
             if (user) {
-                const { data } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
-                if (data && data.full_name) {
+                const { data } = await fetchProfileName(user.id)
+                if (data?.full_name) {
                     setUserName(data.full_name)
                 }
             }
@@ -57,6 +58,8 @@ export default function Sidebar() {
 
     const menuItems = [
         { icon: LayoutDashboard, text: 'Panel', path: '/' },
+        { icon: ScrollText, text: 'Historial', path: '/history' },
+        { icon: Target, text: 'Presupuestos', path: '/budgets' },
         { icon: PieChart, text: 'Visualizador', path: '/stats' },
         { icon: Layers, text: 'Categorías', path: '/categories' },
         { icon: User, text: 'Mi Perfil', path: '/profile' },
