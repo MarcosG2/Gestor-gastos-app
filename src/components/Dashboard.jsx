@@ -208,7 +208,7 @@ export default function Dashboard({ session }) {
   const isExpenseForm = entryMode === 'expense'
 
   return (
-    <div className="grid w-full min-w-0 max-w-full md:grid-cols-2 gap-5 md:gap-8">
+    <div className="mx-auto w-full min-w-0 max-w-6xl grid md:grid-cols-2 gap-5 md:gap-8 md:items-start">
       <div className="bg-white p-4 sm:p-6 md:p-8 rounded-3xl shadow-xl border border-white/50 h-fit relative min-w-0 transition-all">
         {(editingId || editingIncomeId) && (
           <div className="absolute top-4 right-4 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2">
@@ -337,26 +337,26 @@ export default function Dashboard({ session }) {
         </form>
       </div>
 
-      <div className="min-w-0 space-y-6">
-        <div className="grid grid-cols-1 gap-3 min-w-0">
+      <div className="min-w-0 space-y-6 md:max-w-none">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 min-w-0">
           <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white p-4 sm:p-5 rounded-2xl shadow-lg min-w-0">
             <p className="text-emerald-100 text-xs flex items-center gap-1 mb-1">
               <TrendingUp className="w-3.5 h-3.5 shrink-0" /> Ingresos
             </p>
-            <p className="text-lg sm:text-2xl font-bold tabular-nums break-words">{isLoadingData ? '…' : money(totalIngresosMes)}</p>
+            <p className="text-lg sm:text-xl md:text-2xl font-bold tabular-nums break-words">{isLoadingData ? '…' : money(totalIngresosMes)}</p>
           </div>
           <div className="bg-gradient-to-br from-rose-600 to-rose-800 text-white p-4 sm:p-5 rounded-2xl shadow-lg min-w-0">
             <p className="text-rose-100 text-xs flex items-center gap-1 mb-1">
               <TrendingDown className="w-3.5 h-3.5 shrink-0" /> Gastos
             </p>
-            <p className="text-lg sm:text-2xl font-bold tabular-nums break-words">{isLoadingData ? '…' : money(totalMes)}</p>
+            <p className="text-lg sm:text-xl md:text-2xl font-bold tabular-nums break-words">{isLoadingData ? '…' : money(totalMes)}</p>
           </div>
           <div className="bg-gradient-to-br from-slate-700 to-slate-900 text-white p-4 sm:p-5 rounded-2xl shadow-lg min-w-0">
             <p className="text-slate-300 text-xs flex items-center gap-1 mb-0.5">
               <Scale className="w-3.5 h-3.5 shrink-0" /> Balance
             </p>
             <p className="text-slate-400 text-[11px] capitalize mb-1 leading-tight">{mesLabel}</p>
-            <p className={`text-lg sm:text-2xl font-bold tabular-nums break-words ${balanceMes < 0 ? 'text-rose-300' : 'text-emerald-300'}`}>
+            <p className={`text-lg sm:text-xl md:text-2xl font-bold tabular-nums break-words ${balanceMes < 0 ? 'text-rose-300' : 'text-emerald-300'}`}>
               {isLoadingData ? '…' : money(balanceMes)}
             </p>
           </div>
