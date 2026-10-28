@@ -1,218 +1,345 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '../supabaseClient'
-import { User, Mail, Calendar, Trash2, ShieldAlert, Edit2, Save, X, Loader2 } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  Mail,
+  Calendar,
+  Trash2,
+  ShieldAlert,
+  Edit2,
+  Save,
+  X,
+  Loader2,
+  RefreshCw,
+} from 'lucide-react'
 import Modal from './Modal'
 import { useToast } from '../context/ToastContext'
-import { fetchProfileName, updateProfileName } from '../services/profiles'
+import {
+  fetchAccountStats,
+  fetchProfileName,
+  resetUserFinancialData,
+  updateProfileName,
+} from '../services/profiles'
+
+function initialsFromName(name) {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '?'
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
+
+function StatRow({ label, value, loading }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-3 border-b border-gray-100 last:border-0">
+      <span className="text-sm text-gray-600">{label}</span>
+      {loading ? (
+        <span className="inline-block h-6 w-10 rounded-md bg-gray-100 animate-pulse" aria-hidden />
+      ) : (
+        <span className="text-lg font-semibold tabular-nums text-gray-900">{value}</span>
+      )}
+    </div>
+  )
+}
 
 export default function Profile({ session }) {
-    const { showToast } = useToast()
-    const [stats, setStats] = useState({ expenses: 0, categories: 0 })
-    const [loading, setLoading] = useState(false)
-    const [userName, setUserName] = useState('Usuario')
-    const [isEditing, setIsEditing] = useState(false)
-    const [editName, setEditName] = useState('')
-    const [isSaving, setIsSaving] = useState(false)
-    const [isResetModalOpen, setIsResetModalOpen] = useState(false)
-    const [isSuccssModalOpen, setIsSuccssModalOpen] = useState(false)
+  const userId = session.user.id
+  const { showToast } = useToast()
 
-    const joinDate = new Date(session.user.created_at).toLocaleDateString('es-AR', {
-        year: 'numeric', month: 'long', day: 'numeric'
-    })
+  const [stats, setStats] = useState({ expenses: 0, categories: 0, incomes: 0, budgets: 0 })
+  const [statsLoading, setStatsLoading] = useState(true)
+  const [statsError, setStatsError] = useState(null)
+  const [resetLoading, setResetLoading] = useState(false)
 
-    useEffect(() => {
-        getStats()
-        getUserName()
-    }, [])
+  const [userName, setUserName] = useState('Usuario')
+  const [nameLoading, setNameLoading] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editName, setEditName] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
 
-    const getUserName = async () => {
-        const { data } = await fetchProfileName(session.user.id)
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false)
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false)
 
-        if (data?.full_name) {
-            setUserName(data.full_name)
-        }
+  const joinDate = useMemo(
+    () =>
+      new Date(session.user.created_at).toLocaleDateString('es-AR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+    [session.user.created_at],
+  )
+
+  const avatarLabel = useMemo(() => initialsFromName(userName), [userName])
+
+  const loadProfile = useCallback(async () => {
+    setNameLoading(true)
+    const { data, error } = await fetchProfileName(userId)
+    if (error && error.code !== 'PGRST116') {
+      showToast(error.message, 'error')
+    } else if (data?.full_name?.trim()) {
+      setUserName(data.full_name.trim())
+    }
+    setNameLoading(false)
+  }, [userId, showToast])
+
+  const loadStats = useCallback(async () => {
+    setStatsLoading(true)
+    setStatsError(null)
+    const { data, error } = await fetchAccountStats(userId)
+    if (error) {
+      setStatsError(error.message)
+      showToast('No se pudo cargar el resumen: ' + error.message, 'error')
+    } else {
+      setStats(data)
+    }
+    setStatsLoading(false)
+  }, [userId, showToast])
+
+  useEffect(() => {
+    loadProfile()
+    loadStats()
+  }, [loadProfile, loadStats])
+
+  const startEditName = () => {
+    setEditName(userName === 'Usuario' ? '' : userName)
+    setIsEditing(true)
+  }
+
+  const cancelEditName = () => {
+    setIsEditing(false)
+    setEditName('')
+  }
+
+  const handleSaveName = async () => {
+    const trimmed = editName.trim()
+    if (!trimmed) {
+      showToast('Escribí un nombre para guardar', 'error')
+      return
     }
 
-    const getStats = async () => {
-        const { count: expCount } = await supabase.from('expenses').select('*', { count: 'exact' }).eq('user_id', session.user.id)
-        const { count: catCount } = await supabase.from('categories').select('*', { count: 'exact' }).eq('user_id', session.user.id)
+    setIsSaving(true)
+    const { error } = await updateProfileName(userId, trimmed)
+    setIsSaving(false)
 
-        setStats({ expenses: expCount || 0, categories: catCount || 0 })
+    if (error) {
+      showToast('Error al actualizar el nombre: ' + error.message, 'error')
+      return
     }
 
-    const handleSaveName = async () => {
-        if (!editName.trim()) return
+    setUserName(trimmed)
+    setIsEditing(false)
+    showToast('Nombre actualizado', 'success')
+  }
 
-        setIsSaving(true)
-        try {
-            const { error } = await updateProfileName(session.user.id, editName)
+  const handleResetAccount = async () => {
+    setResetLoading(true)
+    setIsResetModalOpen(false)
 
-            if (error) throw error
+    const { error } = await resetUserFinancialData(userId)
+    setResetLoading(false)
 
-            setUserName(editName.trim())
-            setIsEditing(false)
-            showToast('Nombre actualizado', 'success')
-
-        } catch (error) {
-            showToast('Error al actualizar el nombre: ' + error.message, 'error')
-        } finally {
-            setIsSaving(false)
-        }
+    if (error) {
+      showToast('Error al resetear los datos: ' + error.message, 'error')
+      return
     }
 
-    const handleResetAccount = async () => {
-        setLoading(true)
-        setIsResetModalOpen(false) 
+    await loadStats()
+    setIsSuccessModalOpen(true)
+  }
 
-        try {
-            const { error: expError } = await supabase.from('expenses').delete().eq('user_id', session.user.id)
-            if (expError) throw expError
-            const { error: catError } = await supabase.from('categories').delete().eq('user_id', session.user.id)
-            if (catError) throw catError
+  const closeSuccessModal = () => {
+    setIsSuccessModalOpen(false)
+    window.location.reload()
+  }
 
-            setIsSuccssModalOpen(true)
-        } catch (error) {
-            showToast('Error al resetear la cuenta', 'error')
-            console.error(error)
-        } finally {
-            setLoading(false)
-        }
-    }
+  return (
+    <div className="mx-auto w-full min-w-0 max-w-lg space-y-6">
+      <header className="min-w-0">
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Mi perfil</h1>
+        <p className="mt-1 text-sm text-gray-600">
+          Datos de la cuenta y resumen de tu actividad en el gestor.
+        </p>
+      </header>
 
-    return (
-        <div className="max-w-2xl mx-auto space-y-8 relative">
-            <h2 className="text-3xl font-bold text-gray-800">Mi Perfil</h2>
-
-            <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-white/50">
-                <div className="bg-indigo-600 h-32 relative">
-                    <div className="absolute -bottom-12 left-8">
-                        <div className="w-24 h-24 bg-white rounded-full p-1 shadow-lg">
-                            <div className="w-full h-full bg-slate-200 rounded-full flex items-center justify-center text-slate-500">
-                                <User className="w-10 h-10" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="pt-16 pb-8 px-8">
-                    <div className="flex items-center gap-3 mb-2 mt-2">
-                        {isEditing ? (
-                            <div className="flex items-center gap-2 animate-fade-in">
-                                <input
-                                    type="text"
-                                    value={editName}
-                                    onChange={(e) => setEditName(e.target.value)}
-                                    className="px-3 py-1.5 text-xl font-bold border-2 border-indigo-500 rounded-xl outline-none focus:ring-4 focus:ring-indigo-100 bg-white"
-                                    autoFocus
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
-                                />
-                                <button
-                                    onClick={handleSaveName}
-                                    disabled={isSaving}
-                                    className="p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors disabled:bg-indigo-400 shadow-sm"
-                                >
-                                    {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                                </button>
-                                <button
-                                    onClick={() => setIsEditing(false)}
-                                    disabled={isSaving}
-                                    className="p-2 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition-colors"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-                        ) : (
-                            <>
-                                <h3 className="text-2xl font-bold text-gray-900">{userName}</h3>
-                                <button
-                                    onClick={() => {
-                                        setEditName(userName)
-                                        setIsEditing(true)
-                                    }}
-                                    className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                                    title="Editar nombre"
-                                >
-                                    <Edit2 className="w-4 h-4" />
-                                </button>
-                            </>
-                        )}
-                    </div>
-                    <div className="space-y-3 mt-4">
-                        <div className="flex items-center gap-3 text-gray-600">
-                            <Mail className="w-5 h-5 text-indigo-500" />
-                            <span>{session.user.email}</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-gray-600">
-                            <Calendar className="w-5 h-5 text-indigo-500" />
-                            <span>Miembro desde el {joinDate}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-3xl shadow-lg border border-white/50">
-                    <h4 className="font-bold text-gray-800 mb-4">Resumen</h4>
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                            <span className="text-gray-500">Total Gastos Cargados</span>
-                            <span className="font-bold text-indigo-600 text-xl">{stats.expenses}</span>
-                        </div>
-                        <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                            <span className="text-gray-500">Categorías Activas</span>
-                            <span className="font-bold text-indigo-600 text-xl">{stats.categories}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-red-50 p-6 rounded-3xl shadow-lg border border-red-100">
-                    <h4 className="font-bold text-red-800 mb-2 flex items-center gap-2">
-                        <ShieldAlert className="w-5 h-5" /> Zona de Peligro
-                    </h4>
-                    <p className="text-sm text-red-600 mb-6">
-                        Si deseas comenzar de cero, puedes borrar todos los datos de tu cuenta aquí.
-                    </p>
-                    <button
-                        onClick={() => setIsResetModalOpen(true)}
-                        disabled={loading}
-                        className="w-full bg-white border-2 border-red-200 text-red-600 font-bold py-3 rounded-xl hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-2"
-                    >
-                        <Trash2 className="w-5 h-5" />
-                        {loading ? 'Borrando...' : 'Resetear Cuenta'}
-                    </button>
-                </div>
-            </div>
-
-
-            <Modal
-                isOpen={isResetModalOpen}
-                onClose={() => setIsResetModalOpen(false)}
-                onConfirm={handleResetAccount}
-                title=" ZONA DE PELIGRO"
-                message="Esta acción es irreversible. Se borrarán todos tus gastos y categorías de forma permanente."
-                confirmText="Sí, borrar todo"
-                isDanger={true}
-                requireInput={true}
-                expectedWord="BORRAR"
-            />
-
-
-            <Modal
-                isOpen={isSuccssModalOpen}
-                onClose={() => {
-                    setIsSuccssModalOpen(false)
-                    window.location.reload()
-                }}
-                onConfirm={() => {
-                    setIsSuccssModalOpen(false)
-                    window.location.reload()
-                }}
-                title="¡Cuenta Reseteada!"
-                message="Todos tus datos han sido eliminados correctamente. Tu cuenta está como nueva."
-                confirmText="Entendido"
-                cancelText="Cerrar"
-            />
-
+      <section
+        className="rounded-2xl border border-gray-200/80 bg-white shadow-sm overflow-hidden min-w-0"
+        aria-labelledby="profile-account-heading"
+      >
+        <div className="border-b border-gray-100 px-4 py-3 sm:px-5">
+          <h2 id="profile-account-heading" className="text-sm font-semibold text-gray-800">
+            Cuenta
+          </h2>
         </div>
-    )
+
+        <div className="p-4 sm:p-5 space-y-5 min-w-0">
+          <div className="flex items-start gap-3 min-w-0">
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-800"
+              aria-hidden
+            >
+              {nameLoading ? '…' : avatarLabel}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              {isEditing ? (
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <label className="sr-only" htmlFor="profile-name-input">
+                    Nombre visible
+                  </label>
+                  <input
+                    id="profile-name-input"
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    maxLength={80}
+                    className="min-w-0 flex-1 rounded-xl border border-gray-200 px-3 py-2.5 text-base font-semibold text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveName()
+                      if (e.key === 'Escape') cancelEditName()
+                    }}
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={handleSaveName}
+                      disabled={isSaving}
+                      aria-label="Guardar nombre"
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 cursor-pointer"
+                    >
+                      {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelEditName}
+                      disabled={isSaving}
+                      aria-label="Cancelar edición"
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 min-w-0">
+                  <p className="text-lg font-semibold text-gray-900 truncate">{userName}</p>
+                  <button
+                    type="button"
+                    onClick={startEditName}
+                    aria-label="Editar nombre"
+                    className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-indigo-50 hover:text-indigo-700 cursor-pointer"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <dl className="space-y-3 text-sm">
+            <div className="flex gap-3 min-w-0">
+              <dt className="flex shrink-0 items-center gap-2 text-gray-500">
+                <Mail className="h-4 w-4 text-indigo-600" aria-hidden />
+                Email
+              </dt>
+              <dd className="min-w-0 break-all text-gray-800">{session.user.email}</dd>
+            </div>
+            <div className="flex gap-3 min-w-0">
+              <dt className="flex shrink-0 items-center gap-2 text-gray-500">
+                <Calendar className="h-4 w-4 text-indigo-600" aria-hidden />
+                Alta
+              </dt>
+              <dd className="text-gray-800 capitalize">{joinDate}</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section
+        className="rounded-2xl border border-gray-200/80 bg-white shadow-sm overflow-hidden min-w-0"
+        aria-labelledby="profile-activity-heading"
+      >
+        <div className="flex items-center justify-between gap-2 border-b border-gray-100 px-4 py-3 sm:px-5">
+          <h2 id="profile-activity-heading" className="text-sm font-semibold text-gray-800">
+            Actividad registrada
+          </h2>
+          <button
+            type="button"
+            onClick={loadStats}
+            disabled={statsLoading}
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 cursor-pointer"
+          >
+            <RefreshCw className={`h-4 w-4 ${statsLoading ? 'animate-spin' : ''}`} aria-hidden />
+            Actualizar
+          </button>
+        </div>
+
+        <div className="px-4 sm:px-5 py-2">
+          {statsError && !statsLoading ? (
+            <p className="py-4 text-sm text-rose-700" role="alert">
+              No pudimos cargar los totales. Probá de nuevo con Actualizar.
+            </p>
+          ) : (
+            <>
+              <StatRow label="Gastos" value={stats.expenses} loading={statsLoading} />
+              <StatRow label="Ingresos" value={stats.incomes} loading={statsLoading} />
+              <StatRow label="Categorías" value={stats.categories} loading={statsLoading} />
+              <StatRow label="Presupuestos" value={stats.budgets} loading={statsLoading} />
+            </>
+          )}
+        </div>
+      </section>
+
+      <section
+        className="rounded-2xl border border-rose-200 bg-white shadow-sm overflow-hidden min-w-0"
+        aria-labelledby="profile-danger-heading"
+      >
+        <div className="border-b border-rose-100 bg-rose-50/80 px-4 py-3 sm:px-5">
+          <h2
+            id="profile-danger-heading"
+            className="text-sm font-semibold text-rose-900 flex items-center gap-2"
+          >
+            <ShieldAlert className="h-4 w-4 shrink-0" aria-hidden />
+            Borrar datos financieros
+          </h2>
+        </div>
+        <div className="p-4 sm:p-5 space-y-4">
+          <p className="text-sm text-gray-700 leading-relaxed">
+            Eliminá gastos, ingresos, presupuestos y categorías. Tu usuario y el inicio de sesión
+            no se borran. Las categorías por defecto no se recrean solas: tendrás que crearlas de
+            nuevo.
+          </p>
+          <button
+            type="button"
+            onClick={() => setIsResetModalOpen(true)}
+            disabled={resetLoading}
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-rose-300 bg-white px-4 py-3 text-sm font-semibold text-rose-700 hover:bg-rose-600 hover:text-white disabled:opacity-50 cursor-pointer transition-colors"
+          >
+            <Trash2 className="h-4 w-4" aria-hidden />
+            {resetLoading ? 'Borrando…' : 'Borrar todos mis datos'}
+          </button>
+        </div>
+      </section>
+
+      <Modal
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        onConfirm={handleResetAccount}
+        title="Confirmar borrado"
+        message="Esta acción no se puede deshacer. Se eliminarán gastos, ingresos, presupuestos y categorías."
+        confirmText="Sí, borrar todo"
+        isDanger
+        requireInput
+        expectedWord="BORRAR"
+      />
+
+      <Modal
+        isOpen={isSuccessModalOpen}
+        onClose={closeSuccessModal}
+        onConfirm={closeSuccessModal}
+        title="Datos eliminados"
+        message="Tus movimientos y categorías se borraron. La app se recargará para sincronizar el resto de pantallas."
+        confirmText="Entendido"
+        cancelText="Cerrar"
+      />
+    </div>
+  )
 }
