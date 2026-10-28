@@ -23,9 +23,9 @@ export default function Modal({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
 
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-slide-up">
+            <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-slide-up dark:border dark:border-slate-700">
 
-                <div className={`p-6 flex items-start gap-4 ${isDanger ? 'bg-red-50' : 'bg-indigo-50'}`}>
+                <div className={`p-6 flex items-start gap-4 ${isDanger ? 'bg-red-50 dark:bg-red-950/40' : 'bg-indigo-50 dark:bg-indigo-950/40'}`}>
                     <div className={`p-3 rounded-2xl ${isDanger ? 'bg-red-100 text-red-600' : 'bg-indigo-100 text-indigo-600'}`}>
                         <AlertTriangle className="w-6 h-6" />
                     </div>

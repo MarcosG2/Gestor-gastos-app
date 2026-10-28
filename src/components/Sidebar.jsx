@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { LayoutDashboard, PieChart, Layers, User, LogOut, Menu, X, Download, ScrollText, Target } from 'lucide-react'
+import { LayoutDashboard, PieChart, Layers, User, LogOut, Menu, X, Download, ScrollText, Target, Repeat, PiggyBank } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { fetchProfileName } from '../services/profiles'
+import { clearAppLock } from '../utils/appLock'
 
 export default function Sidebar() {
     const location = useLocation()
@@ -60,6 +61,8 @@ export default function Sidebar() {
         { icon: LayoutDashboard, text: 'Panel', path: '/' },
         { icon: ScrollText, text: 'Historial', path: '/history' },
         { icon: Target, text: 'Presupuestos', path: '/budgets' },
+        { icon: Repeat, text: 'Recurrentes', path: '/recurring' },
+        { icon: PiggyBank, text: 'Metas', path: '/goals' },
         { icon: PieChart, text: 'Visualizador', path: '/stats' },
         { icon: Layers, text: 'Categorías', path: '/categories' },
         { icon: User, text: 'Mi Perfil', path: '/profile' },
@@ -68,7 +71,7 @@ export default function Sidebar() {
     return (
         <>
 
-            <div className="md:hidden fixed top-0 left-0 w-full bg-white border-b border-gray-200 z-20 px-4 py-4 flex justify-between items-center shadow-sm">
+            <div className="md:hidden fixed top-0 left-0 w-full bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 z-20 px-4 py-4 flex justify-between items-center shadow-sm">
                 <h1 className="text-xl font-bold text-indigo-600 flex items-center gap-2">
                     <span>🪙</span> Gestor
                 </h1>
@@ -88,7 +91,7 @@ export default function Sidebar() {
                 />
             )}
 
-            <div className={`w-64 bg-white h-screen fixed left-0 top-0 border-r border-gray-200 flex flex-col z-40 transition-transform duration-300 ease-in-out ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+            <div className={`w-64 bg-white dark:bg-slate-800 h-screen fixed left-0 top-0 border-r border-gray-200 dark:border-slate-700 flex flex-col z-40 transition-transform duration-300 ease-in-out ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
                 }`}>
 
                 <div className="p-8 border-b border-gray-50 relative">
@@ -114,8 +117,8 @@ export default function Sidebar() {
                                 to={item.path}
                                 onClick={() => setIsMobileOpen(false)}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${isActive
-                                    ? 'bg-indigo-50 text-indigo-600 shadow-sm'
-                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                                    ? 'bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 shadow-sm'
+                                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-gray-100'
                                     }`}
                             >
                                 <item.icon className="w-5 h-5" />
@@ -137,7 +140,10 @@ export default function Sidebar() {
                         </button>
                     )}
                     <button
-                        onClick={() => supabase.auth.signOut()}
+                        onClick={() => {
+                          clearAppLock()
+                          supabase.auth.signOut()
+                        }}
                         className="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 w-full rounded-xl transition-colors font-medium"
                     >
                         <LogOut className="w-5 h-5" />

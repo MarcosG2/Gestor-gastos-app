@@ -26,10 +26,14 @@ export default function Categories({ session }) {
     setLoading(true)
 
     const colorClass = CATEGORY_COLORS.find((c) => c.id === selectedColor)?.class
-    const { error } = await createCategory(userId, name, colorClass)
+    const result = await createCategory(userId, name, colorClass)
 
-    if (error) {
-      showToast(error.message, 'error')
+    if (result.error) {
+      showToast(result.error.message, 'error')
+    } else if (result?.queued) {
+      showToast('Categoría en cola — se sincronizará al reconectar', 'info')
+      setNewCatName('')
+      reload()
     } else {
       showToast('Categoría creada', 'success')
       setNewCatName('')

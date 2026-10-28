@@ -9,9 +9,19 @@ import {
   X,
   Loader2,
   RefreshCw,
+  Smartphone,
+  Moon,
+  Fingerprint,
 } from 'lucide-react'
 import Modal from './Modal'
 import { useToast } from '../context/ToastContext'
+import { useTheme } from '../context/ThemeContext'
+import {
+  disableAppLock,
+  enableAppLock,
+  isAppLockEnabled,
+  isAppLockSupported,
+} from '../utils/appLock'
 import {
   fetchAccountStats,
   fetchProfileName,
@@ -26,14 +36,24 @@ function initialsFromName(name) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
+function isIosBrowser() {
+  if (typeof navigator === 'undefined') return false
+  return /iPad|iPhone|iPod/.test(navigator.userAgent)
+}
+
+function isStandaloneDisplay() {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia('(display-mode: standalone)').matches
+}
+
 function StatRow({ label, value, loading }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-3 border-b border-gray-100 last:border-0">
-      <span className="text-sm text-gray-600">{label}</span>
+    <div className="flex items-center justify-between gap-4 py-3 border-b border-gray-100 dark:border-slate-700 last:border-0">
+      <span className="text-sm text-gray-600 dark:text-gray-400">{label}</span>
       {loading ? (
         <span className="inline-block h-6 w-10 rounded-md bg-gray-100 animate-pulse" aria-hidden />
       ) : (
-        <span className="text-lg font-semibold tabular-nums text-gray-900">{value}</span>
+        <span className="text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-100">{value}</span>
       )}
     </div>
   )
@@ -42,6 +62,10 @@ function StatRow({ label, value, loading }) {
 export default function Profile({ session }) {
   const userId = session.user.id
   const { showToast } = useToast()
+  const { mode, setMode } = useTheme()
+  const [appLockOn, setAppLockOn] = useState(() => isAppLockEnabled())
+  const [lockBusy, setLockBusy] = useState(false)
+  const showIosInstall = isIosBrowser() && !isStandaloneDisplay()
 
   const [stats, setStats] = useState({ expenses: 0, categories: 0, incomes: 0, budgets: 0 })
   const [statsLoading, setStatsLoading] = useState(true)
@@ -127,6 +151,29 @@ export default function Profile({ session }) {
     setUserName(trimmed)
     setIsEditing(false)
     showToast('Nombre actualizado', 'success')
+  }
+
+  const handleToggleAppLock = async () => {
+    if (!isAppLockSupported()) {
+      showToast('WebAuthn no está disponible en este dispositivo', 'error')
+      return
+    }
+    setLockBusy(true)
+    try {
+      if (appLockOn) {
+        disableAppLock()
+        setAppLockOn(false)
+        showToast('Bloqueo desactivado', 'info')
+      } else {
+        await enableAppLock(userId)
+        setAppLockOn(true)
+        showToast('Bloqueo activado — se pedirá al volver a la app', 'success')
+      }
+    } catch (e) {
+      showToast(e.message || 'No se pudo configurar el bloqueo', 'error')
+    } finally {
+      setLockBusy(false)
+    }
   }
 
   const handleResetAccount = async () => {
@@ -288,8 +335,61 @@ export default function Profile({ session }) {
         </div>
       </section>
 
+      <section className="rounded-2xl border border-gray-200/80 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-hidden min-w-0">
+        <div className="border-b border-gray-100 dark:border-slate-700 px-4 py-3 sm:px-5">
+          <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+            <Moon className="h-4 w-4 text-indigo-600" aria-hidden />
+            Apariencia y app
+          </h2>
+        </div>
+        <div className="p-4 sm:p-5 space-y-4">
+          <label className="block text-sm text-gray-600 dark:text-gray-400">
+            Tema
+            <select
+              value={mode}
+              onChange={(e) => setMode(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-gray-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3 py-2"
+            >
+              <option value="system">Sistema</option>
+              <option value="light">Claro</option>
+              <option value="dark">Oscuro</option>
+            </select>
+          </label>
+
+          {isAppLockSupported() ? (
+            <button
+              type="button"
+              onClick={handleToggleAppLock}
+              disabled={lockBusy}
+              className="w-full flex items-center justify-center gap-2 min-h-11 rounded-xl border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-semibold hover:bg-indigo-50 dark:hover:bg-indigo-950/40 disabled:opacity-50"
+            >
+              {lockBusy ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Fingerprint className="h-4 w-4" />
+              )}
+              {appLockOn ? 'Desactivar bloqueo al abrir' : 'Activar bloqueo al abrir'}
+            </button>
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              El bloqueo con biometría no está disponible en este navegador.
+            </p>
+          )}
+
+          {showIosInstall && (
+            <div className="rounded-xl bg-indigo-50 dark:bg-indigo-950/40 p-4 text-sm text-indigo-900 dark:text-indigo-100 flex gap-3">
+              <Smartphone className="h-5 w-5 shrink-0" aria-hidden />
+              <p>
+                En iPhone/iPad: tocá <strong>Compartir</strong> en Safari y elegí{' '}
+                <strong>Agregar a pantalla de inicio</strong> para instalar la app.
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
       <section
-        className="rounded-2xl border border-rose-200 bg-white shadow-sm overflow-hidden min-w-0"
+        className="rounded-2xl border border-rose-200 bg-white dark:bg-slate-800 dark:border-rose-900 shadow-sm overflow-hidden min-w-0"
         aria-labelledby="profile-danger-heading"
       >
         <div className="border-b border-rose-100 bg-rose-50/80 px-4 py-3 sm:px-5">

@@ -22,6 +22,7 @@ import ExpenseRow from './ExpenseRow'
 import IncomeRow from './IncomeRow'
 import Modal from './Modal'
 import { monthlyBalance } from '../utils/finance'
+import { useBudgetAlerts } from '../hooks/useBudgetAlerts'
 
 function money(n) {
   return `$ ${Number(n).toLocaleString('es-AR')}`
@@ -52,15 +53,16 @@ export default function Dashboard({ session }) {
   const now = new Date()
   const { start: mesInicio, end: mesFin } = monthDateBounds(now.getFullYear(), now.getMonth())
   const balanceMes = monthlyBalance(totalIngresosMes, totalMes)
+  useBudgetAlerts(userId, categories, mesInicio, mesFin, now.getFullYear(), now.getMonth() + 1)
 
   const fetchData = useCallback(async () => {
     setIsLoadingData(true)
 
     const [
-      { data: exp },
-      { data: inc },
-      { total: gastos, error: sumExpError },
-      { total: ingresos, error: sumIncError },
+      { data: exp, offlineMessage: expOff },
+      { data: inc, offlineMessage: incOff },
+      { total: gastos, error: sumExpError, offlineMessage: sumExpOff },
+      { total: ingresos, error: sumIncError, offlineMessage: sumIncOff },
     ] = await Promise.all([
       fetchRecentExpenses(userId, 10),
       fetchRecentIncomes(userId, 5),
@@ -68,8 +70,12 @@ export default function Dashboard({ session }) {
       sumIncomesInRange(userId, mesInicio, mesFin),
     ])
 
-    if (sumExpError) showToast(sumExpError.message, 'error')
-    if (sumIncError) showToast(sumIncError.message, 'error')
+    if (expOff) showToast(expOff, 'info')
+    if (incOff) showToast(incOff, 'info')
+    if (sumExpOff) showToast(sumExpOff, 'info')
+    if (sumIncOff) showToast(sumIncOff, 'info')
+    if (sumExpError?.message && sumExpError.message !== 'Sin conexión') showToast(sumExpError.message, 'error')
+    if (sumIncError?.message && sumIncError.message !== 'Sin conexión') showToast(sumIncError.message, 'error')
 
     setExpenses(exp || [])
     setIncomes(inc || [])
@@ -158,14 +164,21 @@ export default function Dashboard({ session }) {
       user_id: userId,
     }
 
-    const { error } = editingId
+    const result = editingId
       ? await updateExpense(userId, editingId, expenseData)
       : await createExpense(expenseData)
 
-    if (error) {
-      showToast(error.message, 'error')
+    if (result.error) {
+      showToast(result.error.message, 'error')
     } else {
-      showToast(editingId ? 'Gasto actualizado' : 'Gasto registrado', 'success')
+      showToast(
+        result.queued
+          ? 'Guardado localmente — se sincronizará al reconectar'
+          : editingId
+            ? 'Gasto actualizado'
+            : 'Gasto registrado',
+        result.queued ? 'info' : 'success',
+      )
       cancelEdit()
       fetchData()
     }
@@ -190,14 +203,21 @@ export default function Dashboard({ session }) {
       user_id: userId,
     }
 
-    const { error } = editingIncomeId
+    const result = editingIncomeId
       ? await updateIncome(userId, editingIncomeId, incomeData)
       : await createIncome(incomeData)
 
-    if (error) {
-      showToast(error.message, 'error')
+    if (result.error) {
+      showToast(result.error.message, 'error')
     } else {
-      showToast(editingIncomeId ? 'Ingreso actualizado' : 'Ingreso registrado', 'success')
+      showToast(
+        result.queued
+          ? 'Guardado localmente — se sincronizará al reconectar'
+          : editingIncomeId
+            ? 'Ingreso actualizado'
+            : 'Ingreso registrado',
+        result.queued ? 'info' : 'success',
+      )
       cancelEdit()
       fetchData()
     }
@@ -209,7 +229,7 @@ export default function Dashboard({ session }) {
 
   return (
     <div className="mx-auto w-full min-w-0 max-w-6xl grid md:grid-cols-2 gap-5 md:gap-8 md:items-start">
-      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-3xl shadow-xl border border-white/50 h-fit relative min-w-0 transition-all">
+      <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 md:p-8 rounded-3xl shadow-xl border border-white/50 dark:border-slate-700 h-fit relative min-w-0 transition-all">
         {(editingId || editingIncomeId) && (
           <div className="absolute top-4 right-4 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2">
             Modo Edición

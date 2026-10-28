@@ -51,7 +51,27 @@ Abrí [http://localhost:5173](http://localhost:5173). En Supabase → Authentica
 4. Regla SPA: rewrite `/*` → `/index.html` (incluida en `render.yaml`).
 5. En Supabase, agregá la URL de Render (`https://tu-app.onrender.com/**`) en Site URL y Redirect URLs.
 
-La PWA se genera con `vite-plugin-pwa` (`registerType: autoUpdate`).
+La PWA se genera con `vite-plugin-pwa` (`registerType: autoUpdate`). Al publicar una versión nueva, la app muestra un aviso para recargar.
+
+### Offline
+
+- Sin red: lectura desde IndexedDB (panel reciente, categorías, totales del mes cacheados).
+- Altas/edición de gastos, ingresos y categorías se encolan y sincronizan al reconectar.
+- Presupuestos, metas, recurrentes y export CSV requieren conexión.
+
+### Migración SQL (proyectos existentes)
+
+Ejecutá en Supabase SQL Editor:
+
+`../supabase/migrations/20261028180000_recurring_and_goals.sql`
+
+### Tema y seguridad local
+
+- Perfil → Tema (sistema / claro / oscuro).
+- Perfil → Bloqueo al abrir (WebAuthn / biometría del dispositivo cuando el navegador lo permite).
+- iOS: instrucciones de “Agregar a pantalla de inicio” en Perfil.
+
+**Push:** no implementado; las alertas de presupuesto son toasts in-app en el Panel.
 
 ## Estructura del código
 

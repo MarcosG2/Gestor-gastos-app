@@ -1,25 +1,38 @@
-import { supabase } from '../supabaseClient'
+import * as online from './online/categories.js'
+import { isOnline } from '../offline/idb.js'
+import { withOfflineRead } from '../offline/wrap.js'
+import { cacheKeyCategories } from '../offline/keys.js'
+import { enqueueWrite } from '../offline/store.js'
 
 export async function fetchCategories(userId) {
-  return supabase.from('categories').select('*').eq('user_id', userId).order('name')
+  const key = cacheKeyCategories(userId)
+  const wrapped = await withOfflineRead(key, () => online.fetchCategories(userId))
+  return {
+    data: wrapped.data,
+    error: wrapped.error,
+    offlineMessage: wrapped.offlineMessage,
+  }
 }
 
 export async function createCategory(userId, name, color) {
-  return supabase.from('categories').insert({
-    name: name.trim(),
-    color,
-    user_id: userId,
+  if (isOnline()) {
+    return online.createCategory(userId, name, color)
+  }
+  await enqueueWrite(userId, {
+    id: crypto.randomUUID(),
+    type: 'category.create',
+    payload: { userId, name, color },
+    createdAt: Date.now(),
+    retries: 0,
   })
+  return { data: null, error: null, queued: true }
 }
 
 export async function deleteCategoryAndExpenses(userId, categoryId) {
-  const { error: expError } = await supabase
-    .from('expenses')
-    .delete()
-    .eq('category_id', categoryId)
-    .eq('user_id', userId)
-
-  if (expError) return { error: expError }
-
-  return supabase.from('categories').delete().eq('id', categoryId).eq('user_id', userId)
+  if (!isOnline()) {
+    return { error: { message: 'Borrar categorías requiere conexión' } }
+  }
+  return online.deleteCategoryAndExpenses(userId, categoryId)
 }
+
+export { online }

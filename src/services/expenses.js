@@ -1,85 +1,112 @@
-import { supabase } from '../supabaseClient'
-
-function expensesQuery(userId) {
-  return supabase
-    .from('expenses')
-    .select('*, categories(*)')
-    .eq('user_id', userId)
-}
+import * as online from './online/expenses.js'
+import { isOnline } from '../offline/idb.js'
+import { withOfflineRead, tempId } from '../offline/wrap.js'
+import {
+  cacheKeyRecentExpenses,
+  cacheKeyDashboardTotals,
+} from '../offline/keys.js'
+import { enqueueWrite, getReadCache, setReadCache } from '../offline/store.js'
 
 export async function fetchRecentExpenses(userId, limit = 10) {
-  return expensesQuery(userId)
-    .order('date', { ascending: false })
-    .order('created_at', { ascending: false })
-    .limit(limit)
+  const key = cacheKeyRecentExpenses(userId)
+  const wrapped = await withOfflineRead(key, () => online.fetchRecentExpenses(userId, limit))
+  if (wrapped.fromCache && wrapped.data) {
+    return { data: wrapped.data, error: wrapped.error, offlineMessage: wrapped.offlineMessage }
+  }
+  return { data: wrapped.data, error: wrapped.error, offlineMessage: wrapped.offlineMessage }
 }
 
-export async function fetchExpensesPage(userId, { page, pageSize, categoryId, dateFrom, dateTo }) {
-  const from = page * pageSize
-  const to = from + pageSize - 1
-
-  let query = supabase
-    .from('expenses')
-    .select('*, categories(*)', { count: 'exact' })
-    .eq('user_id', userId)
-    .order('date', { ascending: false })
-    .order('created_at', { ascending: false })
-
-  if (categoryId) query = query.eq('category_id', categoryId)
-  if (dateFrom) query = query.gte('date', dateFrom)
-  if (dateTo) query = query.lte('date', dateTo)
-
-  return query.range(from, to)
+export async function fetchExpensesPage(userId, opts) {
+  if (!isOnline()) {
+    return {
+      data: [],
+      error: { message: 'Historial no disponible sin conexión' },
+      count: 0,
+    }
+  }
+  return online.fetchExpensesPage(userId, opts)
 }
 
 export async function fetchExpensesInRange(userId, start, end) {
-  return supabase
-    .from('expenses')
-    .select('amount, date, category_id, categories(name, color)')
-    .eq('user_id', userId)
-    .gte('date', start)
-    .lte('date', end)
+  if (!isOnline()) {
+    return { data: [], error: { message: 'Sin conexión' } }
+  }
+  return online.fetchExpensesInRange(userId, start, end)
 }
 
 export async function sumExpensesInRange(userId, start, end) {
-  const { data, error } = await supabase
-    .from('expenses')
-    .select('amount')
-    .eq('user_id', userId)
-    .gte('date', start)
-    .lte('date', end)
-
-  if (error) return { total: 0, error }
-
-  const total = (data || []).reduce((acc, row) => acc + Number(row.amount), 0)
-  return { total, error: null }
+  const key = cacheKeyDashboardTotals(userId, start, end)
+  if (isOnline()) {
+    const result = await online.sumExpensesInRange(userId, start, end)
+    if (!result.error) {
+      const prev = (await getReadCache(key)) || {}
+      await setReadCache(key, { ...prev, expenseTotal: result.total })
+    }
+    return result
+  }
+  const cached = await getReadCache(key)
+  if (cached?.expenseTotal != null) {
+    return {
+      total: cached.expenseTotal,
+      error: null,
+      offlineMessage: 'Datos guardados — puede estar desactualizado',
+    }
+  }
+  return { total: 0, error: { message: 'Sin conexión' } }
 }
 
 export async function createExpense(payload) {
-  return supabase.from('expenses').insert(payload).select().single()
+  if (isOnline()) {
+    return online.createExpense(payload)
+  }
+  const id = tempId()
+  await enqueueWrite(payload.user_id, {
+    id: crypto.randomUUID(),
+    type: 'expense.create',
+    payload: { payload },
+    createdAt: Date.now(),
+    retries: 0,
+  })
+  return {
+    data: { ...payload, id, _pending: true },
+    error: null,
+    queued: true,
+  }
 }
 
-export async function updateExpense(userId, id, payload) {
-  return supabase.from('expenses').update(payload).eq('id', id).eq('user_id', userId)
+export async function updateExpense(userId, id, fields) {
+  if (isOnline()) {
+    return online.updateExpense(userId, id, fields)
+  }
+  await enqueueWrite(userId, {
+    id: crypto.randomUUID(),
+    type: 'expense.update',
+    payload: { userId, id, fields },
+    createdAt: Date.now(),
+    retries: 0,
+  })
+  return { data: null, error: null, queued: true }
 }
 
 export async function deleteExpense(userId, id) {
-  return supabase.from('expenses').delete().eq('id', id).eq('user_id', userId)
+  if (isOnline()) {
+    return online.deleteExpense(userId, id)
+  }
+  await enqueueWrite(userId, {
+    id: crypto.randomUUID(),
+    type: 'expense.delete',
+    payload: { userId, id },
+    createdAt: Date.now(),
+    retries: 0,
+  })
+  return { data: null, error: null, queued: true }
 }
 
-/** Hasta 5000 filas para exportación CSV con los mismos filtros que el historial. */
-export async function fetchExpensesForExport(userId, { categoryId, dateFrom, dateTo }) {
-  let query = supabase
-    .from('expenses')
-    .select('*, categories(*)')
-    .eq('user_id', userId)
-    .order('date', { ascending: false })
-    .order('created_at', { ascending: false })
-    .limit(5000)
-
-  if (categoryId) query = query.eq('category_id', categoryId)
-  if (dateFrom) query = query.gte('date', dateFrom)
-  if (dateTo) query = query.lte('date', dateTo)
-
-  return query
+export async function fetchExpensesForExport(userId, filters) {
+  if (!isOnline()) {
+    return { data: null, error: { message: 'Exportación requiere conexión' } }
+  }
+  return online.fetchExpensesForExport(userId, filters)
 }
+
+export { online }

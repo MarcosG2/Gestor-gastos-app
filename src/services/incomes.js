@@ -1,37 +1,86 @@
-import { supabase } from '../supabaseClient'
+import * as online from './online/incomes.js'
+import { isOnline } from '../offline/idb.js'
+import { withOfflineRead, tempId } from '../offline/wrap.js'
+import { cacheKeyRecentIncomes } from '../offline/keys.js'
+import { enqueueWrite, getReadCache, setReadCache } from '../offline/store.js'
+import { cacheKeyDashboardTotals } from '../offline/keys.js'
 
 export async function fetchRecentIncomes(userId, limit = 5) {
-  return supabase
-    .from('incomes')
-    .select('*')
-    .eq('user_id', userId)
-    .order('date', { ascending: false })
-    .order('created_at', { ascending: false })
-    .limit(limit)
+  const key = cacheKeyRecentIncomes(userId)
+  const wrapped = await withOfflineRead(key, () => online.fetchRecentIncomes(userId, limit))
+  return {
+    data: wrapped.data,
+    error: wrapped.error,
+    offlineMessage: wrapped.offlineMessage,
+  }
 }
 
 export async function sumIncomesInRange(userId, start, end) {
-  const { data, error } = await supabase
-    .from('incomes')
-    .select('amount')
-    .eq('user_id', userId)
-    .gte('date', start)
-    .lte('date', end)
-
-  if (error) return { total: 0, error }
-
-  const total = (data || []).reduce((acc, row) => acc + Number(row.amount), 0)
-  return { total, error: null }
+  const key = cacheKeyDashboardTotals(userId, start, end)
+  if (isOnline()) {
+    const result = await online.sumIncomesInRange(userId, start, end)
+    if (!result.error) {
+      const prev = (await getReadCache(key)) || {}
+      await setReadCache(key, { ...prev, incomeTotal: result.total })
+    }
+    return result
+  }
+  const cached = await getReadCache(key)
+  if (cached?.incomeTotal != null) {
+    return {
+      total: cached.incomeTotal,
+      error: null,
+      offlineMessage: 'Datos guardados — puede estar desactualizado',
+    }
+  }
+  return { total: 0, error: { message: 'Sin conexión' } }
 }
 
 export async function createIncome(payload) {
-  return supabase.from('incomes').insert(payload).select().single()
+  if (isOnline()) {
+    return online.createIncome(payload)
+  }
+  const id = tempId()
+  await enqueueWrite(payload.user_id, {
+    id: crypto.randomUUID(),
+    type: 'income.create',
+    payload: { payload },
+    createdAt: Date.now(),
+    retries: 0,
+  })
+  return {
+    data: { ...payload, id, _pending: true },
+    error: null,
+    queued: true,
+  }
 }
 
-export async function updateIncome(userId, id, payload) {
-  return supabase.from('incomes').update(payload).eq('id', id).eq('user_id', userId)
+export async function updateIncome(userId, id, fields) {
+  if (isOnline()) {
+    return online.updateIncome(userId, id, fields)
+  }
+  await enqueueWrite(userId, {
+    id: crypto.randomUUID(),
+    type: 'income.update',
+    payload: { userId, id, fields },
+    createdAt: Date.now(),
+    retries: 0,
+  })
+  return { data: null, error: null, queued: true }
 }
 
 export async function deleteIncome(userId, id) {
-  return supabase.from('incomes').delete().eq('id', id).eq('user_id', userId)
+  if (isOnline()) {
+    return online.deleteIncome(userId, id)
+  }
+  await enqueueWrite(userId, {
+    id: crypto.randomUUID(),
+    type: 'income.delete',
+    payload: { userId, id },
+    createdAt: Date.now(),
+    retries: 0,
+  })
+  return { data: null, error: null, queued: true }
 }
+
+export { online }
