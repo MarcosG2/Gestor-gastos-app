@@ -66,17 +66,20 @@ export default function Auth() {
       : 'Ingresa para continuar'
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-300 px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">{title}</h2>
-        <p className="text-gray-500 text-center mb-8">{subtitle}</p>
-
+    <div className="min-h-screen grid md:grid-cols-[280px_1fr] bg-ground">
+      <div className="bg-band text-on-band px-8 py-12 flex flex-col justify-start">
+        <p className="text-sm text-on-band/80">Gestor de Gastos</p>
+        <h2 className="text-4xl font-bold mt-2 leading-none">{title}</h2>
+        <p className="text-on-band/80 mt-4 max-w-[16rem]">{subtitle}</p>
+      </div>
+      <div className="flex items-center justify-center px-6 py-12">
+      <div className="max-w-md w-full">
         <form onSubmit={handleSubmit} className="space-y-5">
           {isRegistering && !isForgotPassword && (
             <div className="animate-fade-in-down">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+              <label className="block text-sm font-medium text-ink mb-1">Nombre Completo</label>
               <input
-                className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-link outline-none transition-all"
                 type="text"
                 placeholder="Ej: Marcos Guerrero"
                 value={fullName}
@@ -87,9 +90,9 @@ export default function Auth() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-ink mb-1">Email</label>
             <input
-              className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-link outline-none transition-all"
               type="email"
               placeholder="tu@email.com"
               value={email}
@@ -100,9 +103,9 @@ export default function Auth() {
 
           {!isForgotPassword && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+              <label className="block text-sm font-medium text-ink mb-1">Contraseña</label>
               <input
-                className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-link outline-none transition-all"
                 type="password"
                 placeholder="••••••••"
                 value={password}
@@ -115,7 +118,7 @@ export default function Auth() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-xl font-bold text-white flex justify-center items-center gap-2 transition-all shadow-lg ${loading ? 'bg-indigo-400 cursor-not-allowed shadow-none' : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-200 active:scale-95'}`}
+            className={`w-full py-3 rounded-xl font-bold text-white flex justify-center items-center gap-2 transition-all shadow-lg ${loading ? 'bg-band/70 cursor-not-allowed shadow-none' : 'bg-band hover:bg-band hover:shadow-none active:scale-95'}`}
           >
             {loading ? (
               <>
@@ -137,23 +140,23 @@ export default function Auth() {
             <button
               type="button"
               onClick={() => setIsForgotPassword(true)}
-              className="text-sm text-gray-500 hover:text-indigo-600"
+              className="text-sm text-muted hover:text-link"
             >
               ¿Olvidaste tu contraseña?
             </button>
           )}
 
-          <p className="text-gray-500">
+          <p className="text-muted">
             {isForgotPassword ? (
               <>
-                <button type="button" onClick={resetView} className="text-indigo-600 font-bold hover:underline">
+                <button type="button" onClick={resetView} className="text-link font-bold hover:underline">
                   Volver al inicio de sesión
                 </button>
               </>
             ) : isRegistering ? (
               <>
                 ¿Ya tienes cuenta?
-                <button type="button" onClick={resetView} className="ml-2 text-indigo-600 font-bold hover:underline">
+                <button type="button" onClick={resetView} className="ml-2 text-link font-bold hover:underline">
                   Inicia Sesión
                 </button>
               </>
@@ -166,7 +169,7 @@ export default function Auth() {
                     setIsRegistering(true)
                     setIsForgotPassword(false)
                   }}
-                  className="ml-2 text-indigo-600 font-bold hover:underline"
+                  className="ml-2 text-link font-bold hover:underline"
                 >
                   Regístrate aquí
                 </button>
@@ -174,6 +177,7 @@ export default function Auth() {
             )}
           </p>
         </div>
+      </div>
       </div>
     </div>
   )

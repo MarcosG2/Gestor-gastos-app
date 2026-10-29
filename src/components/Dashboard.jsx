@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { PlusCircle, Wallet, Pencil, X, TrendingUp, TrendingDown, Scale } from 'lucide-react'
+import { PlusCircle, Wallet, Pencil, X, TrendingUp, TrendingDown } from 'lucide-react'
 import { formatDateInput, monthDateBounds, parseExpenseDate } from '../utils/dates'
 import { useCategories } from '../hooks/useCategories'
 import { useToast } from '../context/ToastContext'
@@ -227,25 +227,57 @@ export default function Dashboard({ session }) {
   const mesLabel = now.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })
   const isExpenseForm = entryMode === 'expense'
 
+  const submitLabel = loading
+    ? 'Guardando...'
+    : (editingId || editingIncomeId ? 'Actualizar' : isExpenseForm ? 'Agregar Gasto' : 'Agregar Ingreso')
+
   return (
-    <div className="mx-auto w-full min-w-0 max-w-6xl grid md:grid-cols-2 gap-5 md:gap-8 md:items-start">
-      <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 md:p-8 rounded-3xl shadow-xl border border-white/50 dark:border-slate-700 h-fit relative min-w-0 transition-all">
+    <div className="mx-auto w-full min-w-0 max-w-3xl flex flex-col gap-8">
+      <section className="band">
+        <div>
+          <p className="band-kicker">{mesLabel}</p>
+          <p className="band-figure" data-negative={balanceMes < 0 ? 'true' : undefined}>
+            {isLoadingData ? '…' : money(balanceMes)}
+          </p>
+        </div>
+        <div className="band-side">
+          <p>
+            <span className="inline-flex items-center gap-1"><TrendingUp className="w-3.5 h-3.5" /> Ingresos</span>
+            <strong>{isLoadingData ? '…' : money(totalIngresosMes)}</strong>
+          </p>
+          <p>
+            <span className="inline-flex items-center gap-1"><TrendingDown className="w-3.5 h-3.5" /> Gastos</span>
+            <strong>{isLoadingData ? '…' : money(totalMes)}</strong>
+          </p>
+        </div>
+        <button
+          type="submit"
+          form="entry-form"
+          disabled={loading || (isExpenseForm && categories.length === 0)}
+          className="band-action"
+        >
+          {submitLabel}
+        </button>
+      </section>
+
+      <form id="entry-form" onSubmit={isExpenseForm ? handleSaveExpense : handleSaveIncome} className="flex flex-col gap-4 max-w-xl">
         {(editingId || editingIncomeId) && (
-          <div className="absolute top-4 right-4 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2">
+          <div className="flex items-center gap-2 text-warn text-sm font-bold">
+            <Pencil className="w-4 h-4" />
             Modo Edición
-            <button type="button" onClick={cancelEdit} aria-label="Cancelar edición">
-              <X className="w-4 h-4 hover:text-red-600" />
+            <button type="button" onClick={cancelEdit} aria-label="Cancelar edición" className="text-danger">
+              <X className="w-4 h-4" />
             </button>
           </div>
         )}
 
-        <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-xl">
+        <div className="flex gap-2">
           <button
             type="button"
             onClick={() => {
               if (!editingIncomeId) setEntryMode('expense')
             }}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${isExpenseForm ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500'}`}
+            className={`flex-1 py-2.5 rounded-md text-sm font-bold ${isExpenseForm ? 'bg-band text-on-band' : 'bg-paper text-muted border border-line'}`}
           >
             Gasto
           </button>
@@ -254,154 +286,118 @@ export default function Dashboard({ session }) {
             onClick={() => {
               if (!editingId) setEntryMode('income')
             }}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${!isExpenseForm ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-500'}`}
+            className={`flex-1 py-2.5 rounded-md text-sm font-bold ${!isExpenseForm ? 'bg-band text-on-band' : 'bg-paper text-muted border border-line'}`}
           >
             Ingreso
           </button>
         </div>
 
-        <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-6 flex flex-wrap items-center gap-2 pr-16">
+        <h2 className="text-xl font-bold text-ink flex items-center gap-2">
           {isExpenseForm ? (
             <>
-              {editingId ? <Pencil className="w-6 h-6 text-orange-500" /> : <PlusCircle className="w-6 h-6 text-indigo-600" />}
+              {editingId ? <Pencil className="w-5 h-5 text-warn" /> : <PlusCircle className="w-5 h-5 text-band" />}
               {editingId ? 'Editar Gasto' : 'Nuevo Gasto'}
             </>
           ) : (
             <>
-              {editingIncomeId ? <Pencil className="w-6 h-6 text-orange-500" /> : <TrendingUp className="w-6 h-6 text-emerald-600" />}
+              {editingIncomeId ? <Pencil className="w-5 h-5 text-warn" /> : <TrendingUp className="w-5 h-5 text-income" />}
               {editingIncomeId ? 'Editar Ingreso' : 'Nuevo Ingreso'}
             </>
           )}
         </h2>
 
-        <form onSubmit={isExpenseForm ? handleSaveExpense : handleSaveIncome} className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-gray-500 mb-1 block">Monto</label>
-            <div className="relative">
-              <span className="absolute left-3 top-3 text-gray-400 font-bold">$</span>
-              <input
-                type="number"
-                min="0.01"
-                step="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full pl-8 pr-4 py-3 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-lg font-semibold text-gray-800"
-                placeholder="0.00"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-500 mb-1 block">Fecha</label>
+        <div>
+          <label className="text-sm font-medium text-muted mb-1 block" htmlFor="entry-amount">Monto</label>
+          <div className="relative">
+            <span className="absolute left-3 top-3 text-muted font-bold">$</span>
             <input
-              type="date"
-              value={expenseDate}
-              onChange={(e) => setExpenseDate(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+              id="entry-amount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full pl-8 pr-4 py-3 rounded-md bg-paper border border-line text-lg font-semibold text-ink"
+              placeholder="0.00"
               required
             />
           </div>
-
-          {isExpenseForm && (
-            <div>
-              <label className="text-sm font-medium text-gray-500 mb-1 block">Categoría</label>
-              {categories.length === 0 ? (
-                <p className="text-sm text-amber-700 bg-amber-50 rounded-xl px-4 py-3">
-                  Creá al menos una categoría en el menú Categorías antes de registrar gastos.
-                </p>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      onClick={() => setCategoryId(cat.id)}
-                      aria-pressed={categoryId === cat.id}
-                      className={`p-3 rounded-xl text-sm font-medium transition-all border-2 ${categoryId === cat.id
-                        ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
-                        : 'border-transparent bg-gray-50 text-gray-600 hover:bg-gray-100'
-                        }`}
-                    >
-                      {cat.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          <div>
-            <label className="text-sm font-medium text-gray-500 mb-1 block">Descripción</label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
-              placeholder={isExpenseForm ? 'Ej: Cena' : 'Ej: Sueldo'}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || (isExpenseForm && categories.length === 0)}
-            className={`w-full text-white py-4 rounded-xl font-bold text-lg shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${editingId || editingIncomeId
-              ? 'bg-orange-500 hover:bg-orange-600 shadow-orange-200'
-              : isExpenseForm
-                ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200'
-                : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200'
-              }`}
-          >
-            {loading ? 'Guardando...' : (editingId || editingIncomeId ? 'Actualizar' : isExpenseForm ? 'Agregar Gasto' : 'Agregar Ingreso')}
-          </button>
-        </form>
-      </div>
-
-      <div className="min-w-0 space-y-6 md:max-w-none">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 min-w-0">
-          <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white p-4 sm:p-5 rounded-2xl shadow-lg min-w-0">
-            <p className="text-emerald-100 text-xs flex items-center gap-1 mb-1">
-              <TrendingUp className="w-3.5 h-3.5 shrink-0" /> Ingresos
-            </p>
-            <p className="text-lg sm:text-xl md:text-2xl font-bold tabular-nums break-words">{isLoadingData ? '…' : money(totalIngresosMes)}</p>
-          </div>
-          <div className="bg-gradient-to-br from-rose-600 to-rose-800 text-white p-4 sm:p-5 rounded-2xl shadow-lg min-w-0">
-            <p className="text-rose-100 text-xs flex items-center gap-1 mb-1">
-              <TrendingDown className="w-3.5 h-3.5 shrink-0" /> Gastos
-            </p>
-            <p className="text-lg sm:text-xl md:text-2xl font-bold tabular-nums break-words">{isLoadingData ? '…' : money(totalMes)}</p>
-          </div>
-          <div className="bg-gradient-to-br from-slate-700 to-slate-900 text-white p-4 sm:p-5 rounded-2xl shadow-lg min-w-0">
-            <p className="text-slate-300 text-xs flex items-center gap-1 mb-0.5">
-              <Scale className="w-3.5 h-3.5 shrink-0" /> Balance
-            </p>
-            <p className="text-slate-400 text-[11px] capitalize mb-1 leading-tight">{mesLabel}</p>
-            <p className={`text-lg sm:text-xl md:text-2xl font-bold tabular-nums break-words ${balanceMes < 0 ? 'text-rose-300' : 'text-emerald-300'}`}>
-              {isLoadingData ? '…' : money(balanceMes)}
-            </p>
-          </div>
         </div>
 
+        <div>
+          <label className="text-sm font-medium text-muted mb-1 block" htmlFor="entry-date">Fecha</label>
+          <input
+            id="entry-date"
+            type="date"
+            value={expenseDate}
+            onChange={(e) => setExpenseDate(e.target.value)}
+            className="w-full px-4 py-3 rounded-md bg-paper border border-line text-ink"
+            required
+          />
+        </div>
+
+        {isExpenseForm && (
+          <div>
+            <label className="text-sm font-medium text-muted mb-1 block">Categoría</label>
+            {categories.length === 0 ? (
+              <p className="text-sm text-warn bg-warnbg px-4 py-3">
+                Creá al menos una categoría en el menú Categorías antes de registrar gastos.
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setCategoryId(cat.id)}
+                    aria-pressed={categoryId === cat.id}
+                    className={`p-3 rounded-md text-sm font-medium border ${categoryId === cat.id
+                      ? 'border-band bg-band/10 text-link'
+                      : 'border-line bg-paper text-muted'
+                      }`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div>
+          <label className="text-sm font-medium text-muted mb-1 block" htmlFor="entry-desc">Descripción</label>
+          <input
+            id="entry-desc"
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full px-4 py-3 rounded-md bg-paper border border-line text-ink"
+            placeholder={isExpenseForm ? 'Ej: Cena' : 'Ej: Sueldo'}
+          />
+        </div>
+      </form>
+
+      <div className="min-w-0 flex flex-col gap-8">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2 min-w-0">
-              <Wallet className="w-5 h-5 shrink-0 text-gray-500" />
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <h3 className="text-lg font-bold text-ink flex items-center gap-2 min-w-0">
+              <Wallet className="w-5 h-5 shrink-0 text-muted" />
               Últimos gastos
             </h3>
-            <Link to="/history" className="text-sm font-medium text-indigo-600 hover:underline shrink-0">
+            <Link to="/history" className="text-sm font-medium text-link shrink-0">
               Ver historial
             </Link>
           </div>
 
-          <div className="space-y-3">
+          <div className="ledger">
             {isLoadingData ? (
-              <div className="animate-pulse space-y-4 w-full">
+              <div className="animate-pulse flex flex-col gap-3 py-3">
                 {[1, 2, 3].map((n) => (
-                  <div key={n} className="h-20 bg-white border border-gray-100 rounded-2xl w-full" />
+                  <div key={n} className="h-12 bg-paper border border-line w-full" />
                 ))}
               </div>
             ) : expenses.length === 0 ? (
-              <p className="text-gray-500 text-center py-4 font-medium">No hay gastos registrados aún.</p>
+              <p className="text-muted py-4 font-medium">No hay gastos registrados aún.</p>
             ) : (
               expenses.map((expense) => (
                 <ExpenseRow
@@ -416,15 +412,15 @@ export default function Dashboard({ session }) {
         </div>
 
         <div>
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-emerald-600" />
+          <h3 className="text-lg font-bold text-ink mb-2 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-income" />
             Últimos ingresos
           </h3>
-          <div className="space-y-3">
+          <div className="ledger">
             {isLoadingData ? (
-              <div className="animate-pulse h-20 bg-white rounded-2xl border border-gray-100" />
+              <div className="animate-pulse h-12 bg-paper border border-line" />
             ) : incomes.length === 0 ? (
-              <p className="text-gray-500 text-center py-4 font-medium">No hay ingresos registrados aún.</p>
+              <p className="text-muted py-4 font-medium">No hay ingresos registrados aún.</p>
             ) : (
               incomes.map((income) => (
                 <IncomeRow

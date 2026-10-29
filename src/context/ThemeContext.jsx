@@ -23,7 +23,7 @@ export function ThemeProvider({ children }) {
     const root = document.documentElement
     root.classList.toggle('dark', resolved === 'dark')
     const meta = document.querySelector('meta[name="theme-color"]')
-    if (meta) meta.setAttribute('content', resolved === 'dark' ? '#0f172a' : '#4f46e5')
+    if (meta) meta.setAttribute('content', resolved === 'dark' ? '#121614' : '#1e4d3f')
   }, [resolved])
 
   useEffect(() => {

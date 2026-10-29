@@ -3,20 +3,17 @@ import { parseExpenseDate } from '../utils/dates'
 
 export default function IncomeRow({ income, onEdit, onDelete }) {
   return (
-    <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-md border border-gray-100 flex justify-between items-center gap-2 min-w-0 max-w-full group hover:shadow-lg transition-all">
-      <div className="flex items-center gap-4 min-w-0">
-        <div className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center bg-emerald-100 text-emerald-600">
-          <ArrowDownCircle className="w-5 h-5" />
-        </div>
+    <div className="ledger-row group">
+      <div className="flex items-center gap-3 min-w-0">
+        <ArrowDownCircle className="w-4 h-4 shrink-0 text-income" />
         <div className="min-w-0">
-          <p className="font-bold text-gray-800 truncate">Ingreso</p>
-          <p className="text-xs text-gray-500 truncate">{income.description || 'Sin detalle'}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{parseExpenseDate(income)}</p>
+          <p className="font-bold text-ink truncate">Ingreso</p>
+          <p className="text-sm text-muted truncate">{income.description || 'Sin detalle'} · {parseExpenseDate(income)}</p>
         </div>
       </div>
 
       <div className="flex items-center gap-2 shrink-0 ml-2">
-        <p className="font-bold text-emerald-600 whitespace-nowrap">
+        <p className="font-bold text-income whitespace-nowrap">
           + ${Number(income.amount).toLocaleString('es-AR')}
         </p>
         {(onEdit || onDelete) && (
@@ -25,7 +22,7 @@ export default function IncomeRow({ income, onEdit, onDelete }) {
               <button
                 type="button"
                 onClick={() => onEdit(income)}
-                className="p-2 text-gray-400 hover:text-orange-500 hover:bg-orange-50 rounded-lg"
+                className="p-2 text-muted hover:text-warn rounded-md"
                 aria-label="Editar ingreso"
               >
                 <Pencil className="w-4 h-4" />
@@ -35,7 +32,7 @@ export default function IncomeRow({ income, onEdit, onDelete }) {
               <button
                 type="button"
                 onClick={() => onDelete(income)}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                className="p-2 text-muted hover:text-danger rounded-md"
                 aria-label="Borrar ingreso"
               >
                 <Trash2 className="w-4 h-4" />

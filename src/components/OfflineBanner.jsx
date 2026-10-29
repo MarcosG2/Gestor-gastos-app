@@ -19,7 +19,7 @@ export default function OfflineBanner() {
       )}
       {online && syncing && <span>Sincronizando cambios…</span>}
       {pendingCount > 0 && (
-        <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">
+        <span className="rounded-full bg-paper/20 px-2 py-0.5 text-xs">
           {pendingCount} pendiente{pendingCount === 1 ? '' : 's'}
         </span>
       )}

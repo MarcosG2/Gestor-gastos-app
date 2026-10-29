@@ -71,13 +71,15 @@ export default function Sidebar() {
     return (
         <>
 
-            <div className="md:hidden fixed top-0 left-0 w-full bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 z-20 px-4 py-4 flex justify-between items-center shadow-sm">
-                <h1 className="text-xl font-bold text-indigo-600 flex items-center gap-2">
-                    <span>🪙</span> Gestor
+            <div className="md:hidden fixed top-0 left-0 w-full bg-band text-on-band z-20 px-4 py-4 flex justify-between items-center">
+                <h1 className="text-xl font-bold">
+                    Gestor
                 </h1>
                 <button
+                    type="button"
                     onClick={() => setIsMobileOpen(true)}
-                    className="text-gray-500 hover:text-indigo-600 focus:outline-none"
+                    className="text-on-band"
+                    aria-label="Abrir menú"
                 >
                     <Menu className="w-7 h-7" />
                 </button>
@@ -91,24 +93,26 @@ export default function Sidebar() {
                 />
             )}
 
-            <div className={`w-64 bg-white dark:bg-slate-800 h-screen fixed left-0 top-0 border-r border-gray-200 dark:border-slate-700 flex flex-col z-40 transition-transform duration-300 ease-in-out ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+            <div className={`w-60 bg-band text-on-band h-screen fixed left-0 top-0 flex flex-col z-40 transition-transform duration-300 ease-in-out ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
                 }`}>
 
-                <div className="p-8 border-b border-gray-50 relative">
+                <div className="px-6 pt-8 pb-6 relative">
                     <button
-                        className="md:hidden absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+                        type="button"
+                        className="md:hidden absolute top-4 right-4 text-on-band"
                         onClick={() => setIsMobileOpen(false)}
+                        aria-label="Cerrar menú"
                     >
                         <X className="w-6 h-6" />
                     </button>
 
-                    <h1 className="text-2xl font-bold text-indigo-600 flex items-center gap-2 mb-1">
-                        <span className="text-3xl">🪙</span>Gestor
+                    <h1 className="text-2xl font-bold mb-1">
+                        Gestor
                     </h1>
-                    <p className="text-xs text-gray-400 font-medium pl-1">Hola, {userName}</p>
+                    <p className="text-sm text-on-band/80">Hola, {userName}</p>
                 </div>
 
-                <nav className="flex-1 px-4 space-y-2 py-6">
+                <nav className="flex-1 px-3 flex flex-col gap-1">
                     {menuItems.map((item) => {
                         const isActive = location.pathname === item.path
                         return (
@@ -116,9 +120,9 @@ export default function Sidebar() {
                                 key={item.path}
                                 to={item.path}
                                 onClick={() => setIsMobileOpen(false)}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${isActive
-                                    ? 'bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 shadow-sm'
-                                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-gray-100'
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-md font-medium ${isActive
+                                    ? 'bg-on-band text-band'
+                                    : 'text-on-band/85 hover:bg-on-band/10'
                                     }`}
                             >
                                 <item.icon className="w-5 h-5" />
@@ -129,11 +133,11 @@ export default function Sidebar() {
                 </nav>
 
 
-                <div className="p-4 border-t border-gray-50 flex flex-col gap-2">
+                <div className="p-3 flex flex-col gap-1 border-t border-on-band/15">
                     {isInstallable && (
                         <button
                             onClick={handleInstallClick}
-                            className="flex items-center justify-center gap-3 px-4 py-3 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 w-full rounded-xl transition-colors font-bold shadow-sm"
+                            className="flex items-center justify-center gap-3 px-3 py-2.5 bg-on-band text-band w-full rounded-md font-bold"
                         >
                             <Download className="w-5 h-5" />
                             Instalar App
@@ -144,7 +148,7 @@ export default function Sidebar() {
                           clearAppLock()
                           supabase.auth.signOut()
                         }}
-                        className="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 w-full rounded-xl transition-colors font-medium"
+                        className="flex items-center gap-3 px-3 py-2.5 text-on-band hover:bg-on-band/10 w-full rounded-md font-medium"
                     >
                         <LogOut className="w-5 h-5" />
                         Cerrar Sesión

@@ -101,12 +101,12 @@ export default function Recurring({ session }) {
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
-      <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-        <Repeat className="w-8 h-8 text-indigo-600" />
+      <h2 className="text-3xl font-bold text-ink dark:text-ink flex items-center gap-2">
+        <Repeat className="w-8 h-8 text-link" />
         Movimientos recurrentes
       </h2>
 
-      <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700">
+      <div className="bg-paper dark:bg-paper p-6 rounded-2xl shadow-sm border border-line dark:border-line">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex gap-2">
             {['expense', 'income'].map((k) => (
@@ -114,7 +114,7 @@ export default function Recurring({ session }) {
                 key={k}
                 type="button"
                 onClick={() => setKind(k)}
-                className={`flex-1 py-2 rounded-xl font-semibold text-sm ${kind === k ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300'}`}
+                className={`flex-1 py-2 rounded-xl font-semibold text-sm ${kind === k ? 'bg-band text-white' : 'bg-paper dark:bg-paper text-muted dark:text-muted'}`}
               >
                 {k === 'expense' ? 'Gasto' : 'Ingreso'}
               </button>
@@ -126,20 +126,20 @@ export default function Recurring({ session }) {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="Monto"
-            className="w-full px-4 py-2 border dark:border-slate-600 rounded-xl dark:bg-slate-900 dark:text-white"
+            className="w-full px-4 py-2 border dark:border-line rounded-xl dark:bg-ground dark:text-ink"
           />
           <input
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Descripción"
-            className="w-full px-4 py-2 border dark:border-slate-600 rounded-xl dark:bg-slate-900 dark:text-white"
+            className="w-full px-4 py-2 border dark:border-line rounded-xl dark:bg-ground dark:text-ink"
           />
           {kind === 'expense' && (
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full px-4 py-2 border dark:border-slate-600 rounded-xl dark:bg-slate-900 dark:text-white"
+              className="w-full px-4 py-2 border dark:border-line rounded-xl dark:bg-ground dark:text-ink"
             >
               <option value="">Categoría</option>
               {categories.map((c) => (
@@ -149,7 +149,7 @@ export default function Recurring({ session }) {
               ))}
             </select>
           )}
-          <label className="block text-sm text-gray-500 dark:text-gray-400">
+          <label className="block text-sm text-muted dark:text-muted">
             Día del mes (1–28)
             <input
               type="number"
@@ -157,13 +157,13 @@ export default function Recurring({ session }) {
               max={28}
               value={dayOfMonth}
               onChange={(e) => setDayOfMonth(e.target.value)}
-              className="mt-1 w-full px-4 py-2 border dark:border-slate-600 rounded-xl dark:bg-slate-900 dark:text-white"
+              className="mt-1 w-full px-4 py-2 border dark:border-line rounded-xl dark:bg-ground dark:text-ink"
             />
           </label>
           <button
             type="submit"
             disabled={saving || !online}
-            className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3 rounded-xl font-bold disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 bg-band text-white py-3 rounded-xl font-bold disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
             Agregar recurrente
@@ -172,19 +172,19 @@ export default function Recurring({ session }) {
       </div>
 
       {loading ? (
-        <p className="text-center text-gray-500 animate-pulse">Cargando…</p>
+        <p className="text-center text-muted animate-pulse">Cargando…</p>
       ) : (
         <ul className="space-y-3">
           {items.map((item) => (
             <li
               key={item.id}
-              className="bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3"
+              className="bg-paper dark:bg-paper border dark:border-line rounded-xl p-4 flex flex-wrap items-center justify-between gap-3"
             >
               <div>
-                <p className="font-semibold text-gray-900 dark:text-gray-100">
+                <p className="font-semibold text-ink dark:text-ink">
                   {item.kind === 'expense' ? 'Gasto' : 'Ingreso'} — ${Number(item.amount).toLocaleString('es-AR')}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-muted dark:text-muted">
                   Día {item.day_of_month} · {item.description || 'Sin descripción'}
                   {item.categories?.name ? ` · ${item.categories.name}` : ''}
                 </p>
@@ -193,7 +193,7 @@ export default function Recurring({ session }) {
                 <button
                   type="button"
                   onClick={() => toggleActive(item)}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium ${item.active ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-600'}`}
+                  className={`px-3 py-1 rounded-lg text-sm font-medium ${item.active ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-muted'}`}
                 >
                   {item.active ? 'Activo' : 'Pausado'}
                 </button>

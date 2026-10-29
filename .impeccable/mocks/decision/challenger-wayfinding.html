@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1440px; height: 900px; overflow: hidden; background: #f4f6f5; color: #141816; font-family: "Schibsted Grotesk", sans-serif; }
+  .band { background: #1e4d3f; color: #fff; margin: 28px 40px 0; padding: 28px 32px; display: flex; justify-content: space-between; align-items: center; }
+  .band p { font-size: 18px; }
+  .band strong { display: block; font-size: 72px; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; line-height: 1; margin-top: 6px; }
+  button { background: #fff; color: #1e4d3f; border: 0; padding: 16px 22px; font: 700 18px "Schibsted Grotesk", sans-serif; }
+  .rest { padding: 28px 48px; }
+  .warn { color: #8a5414; margin-bottom: 18px; }
+  row, .row { display: grid; grid-template-columns: 90px 1fr 160px; gap: 12px; padding: 14px 0; border-bottom: 1px solid #d5ddd8; font-size: 18px; font-variant-numeric: tabular-nums; }
+  nav { display: flex; gap: 22px; padding: 22px 48px 0; font-size: 15px; }
+  nav b { font-weight: 700; }
+</style>
+</head>
+<body>
+<nav><b>Panel</b><span>Historial</span><span>Presupuestos</span><span>Recurrentes</span><span>Metas</span><span>Mi Perfil</span></nav>
+<div class="band">
+  <div><p>Balance de octubre</p><strong>$184.320</strong></div>
+  <button>Registrar gasto</button>
+</div>
+<div class="rest">
+  <p class="warn">Comida llegó al 80% del presupuesto. Quedan $12.400.</p>
+  <div class="row"><span>28 oct</span><span>Verdulería</span><span>−$8.900</span></div>
+  <div class="row"><span>28 oct</span><span>Subte</span><span>−$1.250</span></div>
+  <div class="row"><span>27 oct</span><span>Sueldo</span><span>+$420.000</span></div>
+</div>
+</body>
+</html>

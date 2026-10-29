@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1440px; height: 900px; overflow: hidden; background: #f3f5f7; color: #1c2430; font-family: "Atkinson Hyperlegible", sans-serif; }
+  .app { display: grid; grid-template-columns: 232px 1fr; height: 900px; }
+  nav { background: #163e3c; color: #e7f2f0; padding: 28px 20px; display: flex; flex-direction: column; gap: 4px; }
+  nav strong { font-size: 18px; font-weight: 700; margin-bottom: 28px; letter-spacing: -0.02em; }
+  nav a { color: #d5e6e3; text-decoration: none; font-size: 15px; padding: 8px 10px; border-radius: 6px; }
+  nav a.on { background: #1f6f6a; color: #fff; }
+  main { padding: 36px 48px 32px; }
+  .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
+  h1 { font-size: 22px; font-weight: 400; }
+  .bal { font-size: 64px; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1; }
+  .bal span { font-size: 22px; font-weight: 400; margin-right: 4px; }
+  button { background: #163e3c; color: #fff; border: 0; border-radius: 8px; padding: 12px 18px; font: 700 16px/1 "Atkinson Hyperlegible", sans-serif; }
+  .warn { margin: 28px 0 8px; color: #8a5414; font-size: 15px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th { text-align: left; font-size: 13px; font-weight: 400; color: #3d4a5c; padding: 0 12px 8px; border-bottom: 1px solid #c5ced6; }
+  td { padding: 11px 12px; border-bottom: 1px solid #e1e6eb; font-size: 16px; font-variant-numeric: tabular-nums; }
+  tr.now td { box-shadow: inset 0 1px 0 #163e3c; }
+  .dot { display: inline-block; border-radius: 50%; background: #1f6f6a; vertical-align: middle; margin-right: 8px; }
+  .out { text-align: right; }
+  .neg { color: #1c2430; }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav>
+    <strong>Gestor de Gastos</strong>
+    <a class="on" href="#">Panel</a>
+    <a href="#">Historial</a>
+    <a href="#">Presupuestos</a>
+    <a href="#">Recurrentes</a>
+    <a href="#">Metas</a>
+    <a href="#">Visualizador</a>
+    <a href="#">Categorías</a>
+    <a href="#">Mi Perfil</a>
+  </nav>
+  <main>
+    <div class="top">
+      <div>
+        <h1>Octubre</h1>
+        <p class="bal"><span>$</span>184.320</p>
+      </div>
+      <button>Registrar gasto</button>
+    </div>
+    <p class="warn">Comida llegó al 80% del presupuesto. Quedan $12.400.</p>
+    <table>
+      <thead><tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th class="out">Monto</th></tr></thead>
+      <tbody>
+        <tr class="now"><td>28 oct</td><td>Verdulería</td><td><i class="dot" style="width:14px;height:14px"></i>Comida</td><td class="out">−$8.900</td></tr>
+        <tr class="now"><td>28 oct</td><td>Subte</td><td><i class="dot" style="width:8px;height:8px"></i>Transporte</td><td class="out">−$1.250</td></tr>
+        <tr><td>27 oct</td><td>Sueldo</td><td><i class="dot" style="width:18px;height:18px"></i>Ingreso</td><td class="out">+$420.000</td></tr>
+        <tr><td>26 oct</td><td>Alquiler</td><td><i class="dot" style="width:16px;height:16px"></i>Hogar</td><td class="out">−$210.000</td></tr>
+        <tr><td>24 oct</td><td>Farmacia</td><td><i class="dot" style="width:7px;height:7px"></i>Salud</td><td class="out">−$6.430</td></tr>
+      </tbody>
+    </table>
+  </main>
+</div>
+</body>
+</html>

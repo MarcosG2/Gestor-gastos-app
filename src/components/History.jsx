@@ -111,18 +111,18 @@ export default function History({ session }) {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-3xl font-bold text-gray-800">Historial de gastos</h2>
+        <h2 className="text-3xl font-bold text-ink">Historial de gastos</h2>
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
             disabled={exporting || loading}
             onClick={handleExportCsv}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-paper border border-line rounded-xl text-sm font-bold text-ink hover:bg-paper disabled:opacity-50"
           >
             <Download className="w-4 h-4" />
             {exporting ? 'Exportando…' : 'Exportar CSV'}
           </button>
-          <Link to="/" className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+          <Link to="/" className="text-sm font-medium text-link hover:text-link">
             ← Volver al panel
           </Link>
         </div>
@@ -130,19 +130,19 @@ export default function History({ session }) {
 
       <form
         onSubmit={applyFilters}
-        className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+        className="bg-paper p-6 rounded-2xl shadow-sm border border-line space-y-4"
       >
-        <h3 className="font-bold text-gray-800 flex items-center gap-2">
-          <Filter className="w-5 h-5 text-indigo-600" />
+        <h3 className="font-bold text-ink flex items-center gap-2">
+          <Filter className="w-5 h-5 text-link" />
           Filtros
         </h3>
         <div className="grid sm:grid-cols-3 gap-4">
           <div>
-            <label className="text-sm text-gray-500 block mb-1">Categoría</label>
+            <label className="text-sm text-muted block mb-1">Categoría</label>
             <select
               value={draft.categoryId}
               onChange={(e) => setDraft((d) => ({ ...d, categoryId: e.target.value }))}
-              className="w-full px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2.5 rounded-xl bg-paper border border-line outline-none focus:ring-2 focus:ring-link"
             >
               <option value="">Todas</option>
               {categories.map((cat) => (
@@ -153,42 +153,42 @@ export default function History({ session }) {
             </select>
           </div>
           <div>
-            <label className="text-sm text-gray-500 block mb-1">Desde</label>
+            <label className="text-sm text-muted block mb-1">Desde</label>
             <input
               type="date"
               value={draft.dateFrom}
               onChange={(e) => setDraft((d) => ({ ...d, dateFrom: e.target.value }))}
-              className="w-full px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2.5 rounded-xl bg-paper border border-line outline-none focus:ring-2 focus:ring-link"
             />
           </div>
           <div>
-            <label className="text-sm text-gray-500 block mb-1">Hasta</label>
+            <label className="text-sm text-muted block mb-1">Hasta</label>
             <input
               type="date"
               value={draft.dateTo}
               onChange={(e) => setDraft((d) => ({ ...d, dateTo: e.target.value }))}
-              className="w-full px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2.5 rounded-xl bg-paper border border-line outline-none focus:ring-2 focus:ring-link"
             />
           </div>
         </div>
         <div className="flex flex-wrap gap-3">
           <button
             type="submit"
-            className="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors"
+            className="px-5 py-2.5 bg-band text-white font-bold rounded-xl hover:bg-band transition-colors"
           >
             Aplicar
           </button>
           <button
             type="button"
             onClick={resetFilters}
-            className="px-5 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
+            className="px-5 py-2.5 bg-paper text-ink font-medium rounded-xl hover:bg-line transition-colors"
           >
             Mes actual
           </button>
         </div>
       </form>
 
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-muted">
         {totalCount} {totalCount === 1 ? 'resultado' : 'resultados'}
       </p>
 
@@ -196,11 +196,11 @@ export default function History({ session }) {
         {loading ? (
           <div className="animate-pulse space-y-3">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="h-20 bg-white rounded-2xl border border-gray-100" />
+              <div key={n} className="h-20 bg-paper rounded-2xl border border-line" />
             ))}
           </div>
         ) : expenses.length === 0 ? (
-          <p className="text-center text-gray-500 py-12 bg-white rounded-2xl border border-gray-100">
+          <p className="text-center text-muted py-12 bg-paper rounded-2xl border border-line">
             No hay gastos con estos filtros.
           </p>
         ) : (
@@ -215,24 +215,24 @@ export default function History({ session }) {
       </div>
 
       {totalCount > PAGE_SIZE && (
-        <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-gray-100">
+        <div className="flex items-center justify-between bg-paper p-4 rounded-2xl border border-line">
           <button
             type="button"
             disabled={page === 0 || loading}
             onClick={() => setPage((p) => p - 1)}
-            className="flex items-center gap-1 px-4 py-2 rounded-xl font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+            className="flex items-center gap-1 px-4 py-2 rounded-xl font-medium text-ink hover:bg-paper disabled:opacity-40"
           >
             <ChevronLeft className="w-5 h-5" />
             Anterior
           </button>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-muted">
             Página {page + 1} de {totalPages}
           </span>
           <button
             type="button"
             disabled={page >= totalPages - 1 || loading}
             onClick={() => setPage((p) => p + 1)}
-            className="flex items-center gap-1 px-4 py-2 rounded-xl font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+            className="flex items-center gap-1 px-4 py-2 rounded-xl font-medium text-ink hover:bg-paper disabled:opacity-40"
           >
             Siguiente
             <ChevronRight className="w-5 h-5" />

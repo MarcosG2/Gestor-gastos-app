@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { useCategories } from '../hooks/useCategories'
 import { useToast } from '../context/ToastContext'
 import { deleteBudget, fetchBudgetsForMonth, upsertBudget } from '../services/budgets'
+import { categoryChipProps } from '../utils/categoryColor'
 
 export default function Budgets({ session }) {
   const userId = session.user.id
@@ -105,33 +106,33 @@ export default function Budgets({ session }) {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-          <Target className="w-8 h-8 text-indigo-600" />
+        <h2 className="text-3xl font-bold text-ink flex items-center gap-2">
+          <Target className="w-8 h-8 text-link" />
           Presupuestos
         </h2>
-        <Link to="/stats" className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+        <Link to="/stats" className="text-sm font-medium text-link hover:text-link">
           Ver progreso en análisis →
         </Link>
       </div>
 
-      <p className="text-gray-600">
+      <p className="text-muted">
         Definí un tope mensual por categoría. En el visualizador verás cuánto llevás gastado respecto al límite.
       </p>
 
-      <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+      <div className="flex items-center justify-between bg-paper p-4 rounded-2xl border border-line shadow-sm">
         <button
           type="button"
           onClick={() => shiftMonth(-1)}
-          className="p-2 rounded-xl hover:bg-gray-50 text-gray-600"
+          className="p-2 rounded-xl hover:bg-paper text-muted"
           aria-label="Mes anterior"
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
-        <span className="font-bold text-gray-800 capitalize">{monthLabel}</span>
+        <span className="font-bold text-ink capitalize">{monthLabel}</span>
         <button
           type="button"
           onClick={() => shiftMonth(1)}
-          className="p-2 rounded-xl hover:bg-gray-50 text-gray-600"
+          className="p-2 rounded-xl hover:bg-paper text-muted"
           aria-label="Mes siguiente"
         >
           <ChevronRight className="w-6 h-6" />
@@ -141,25 +142,27 @@ export default function Budgets({ session }) {
       {loading ? (
         <div className="animate-pulse space-y-3">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-16 bg-white rounded-2xl border border-gray-100" />
+            <div key={n} className="h-16 bg-paper rounded-2xl border border-line" />
           ))}
         </div>
       ) : categories.length === 0 ? (
-        <p className="text-center text-gray-500 py-12 bg-white rounded-2xl border border-gray-100">
+        <p className="text-center text-muted py-12 bg-paper rounded-2xl border border-line">
           Creá categorías antes de definir presupuestos.
         </p>
       ) : (
         <ul className="space-y-3">
-          {categories.map((cat) => (
+          {categories.map((cat) => {
+            const chip = categoryChipProps(cat.color)
+            return (
             <li
               key={cat.id}
-              className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row sm:items-center gap-3"
+              className="bg-paper p-4 rounded-2xl border border-line shadow-sm flex flex-col sm:flex-row sm:items-center gap-3"
             >
-              <span className={`px-3 py-1 rounded-lg text-sm font-medium ${cat.color || 'bg-gray-100'}`}>
+              <span className={`px-3 py-1 rounded-lg text-sm font-medium ${chip.className}`} style={chip.style}>
                 {cat.name}
               </span>
               <div className="flex-1 flex items-center gap-2">
-                <span className="text-gray-400 font-bold">$</span>
+                <span className="text-muted font-bold">$</span>
                 <input
                   type="number"
                   min="0.01"
@@ -167,19 +170,20 @@ export default function Budgets({ session }) {
                   placeholder="Sin límite"
                   value={drafts[cat.id] ?? ''}
                   onChange={(e) => setDrafts((d) => ({ ...d, [cat.id]: e.target.value }))}
-                  className="flex-1 px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex-1 px-3 py-2.5 rounded-xl bg-paper border border-line outline-none focus:ring-2 focus:ring-link"
                 />
               </div>
               <button
                 type="button"
                 disabled={savingId === cat.id}
                 onClick={() => saveLimit(cat.id)}
-                className="px-4 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 disabled:opacity-50"
+                className="px-4 py-2.5 bg-band text-white font-bold rounded-xl hover:bg-band disabled:opacity-50"
               >
                 {savingId === cat.id ? '…' : 'Guardar'}
               </button>
             </li>
-          ))}
+            )
+          })}
         </ul>
       )}
     </div>

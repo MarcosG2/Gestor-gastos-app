@@ -11,7 +11,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,woff2}'],
         runtimeCaching: [
           {
             urlPattern: ({ request }) => request.destination === 'image',
@@ -35,8 +35,8 @@ export default defineConfig({
         lang: 'es',
         start_url: '/',
         scope: '/',
-        theme_color: '#4f46e5',
-        background_color: '#cbd5e1',
+        theme_color: '#1e4d3f',
+        background_color: '#f4f6f5',
         display: 'standalone',
         shortcuts: [
           {

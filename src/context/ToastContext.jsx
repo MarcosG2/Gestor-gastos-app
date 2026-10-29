@@ -10,9 +10,9 @@ const icons = {
 }
 
 const styles = {
-  success: 'bg-emerald-600 text-white',
-  error: 'bg-red-600 text-white',
-  info: 'bg-slate-800 text-white',
+  success: 'bg-band text-on-band',
+  error: 'bg-[#9f2d2d] text-[#f4f6f5]',
+  info: 'bg-ink text-on-band',
 }
 
 export function ToastProvider({ children }) {

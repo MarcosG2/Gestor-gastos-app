@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1440px; height: 900px; overflow: hidden; background: #f6f1e8; color: #241f1b; font-family: Karla, sans-serif; }
+  .wrap { padding: 32px 48px; height: 900px; }
+  header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; }
+  h1 { font-size: 28px; font-weight: 700; }
+  nav { display: flex; gap: 18px; font-size: 15px; }
+  nav b { border-bottom: 2px solid #241f1b; padding-bottom: 2px; }
+  .days { display: grid; grid-template-columns: repeat(16, 1fr); gap: 8px; margin: 12px 0 28px; }
+  .day { background: #fffdf8; border: 1px solid #ddd4c6; min-height: 72px; padding: 8px; font-size: 13px; }
+  .day em { display: block; font-style: normal; font-size: 16px; font-weight: 700; }
+  .day.on { background: #b6402c; color: #fff; border-color: #b6402c; }
+  .bar { height: 4px; background: #241f1b; margin-top: 10px; opacity: 0.35; }
+  .split { display: grid; grid-template-columns: 420px 1fr; gap: 36px; }
+  form { display: flex; flex-direction: column; gap: 10px; }
+  label { font-size: 14px; }
+  input { border: 1px solid #ddd4c6; background: #fff; padding: 10px 12px; font: 16px Karla, sans-serif; }
+  button { background: #241f1b; color: #f6f1e8; border: 0; padding: 12px; font: 700 16px Karla, sans-serif; }
+  li { list-style: none; display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #ddd4c6; font-variant-numeric: tabular-nums; }
+  ul { padding: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Octubre</h1>
+    <nav><b>Panel</b><span>Historial</span><span>Presupuestos</span><span>Metas</span><span>Mi Perfil</span></nav>
+  </header>
+  <div class="days">
+    <div class="day"><em>21</em><i class="bar" style="width:30%"></i></div>
+    <div class="day"><em>22</em><i class="bar" style="width:55%"></i></div>
+    <div class="day"><em>23</em><i class="bar" style="width:20%"></i></div>
+    <div class="day"><em>24</em><i class="bar" style="width:40%"></i></div>
+    <div class="day"><em>25</em><i class="bar" style="width:15%"></i></div>
+    <div class="day"><em>26</em><i class="bar" style="width:90%"></i></div>
+    <div class="day"><em>27</em><i class="bar" style="width:70%"></i></div>
+    <div class="day on"><em>28</em>hoy</div>
+    <div class="day"><em>29</em></div>
+    <div class="day"><em>30</em></div>
+    <div class="day"><em>31</em></div>
+  </div>
+  <div class="split">
+    <form>
+      <label>Monto<input value="8900" /></label>
+      <label>Descripción<input value="Verdulería" /></label>
+      <button>Registrar gasto</button>
+      <p style="color:#8a5414;font-size:14px">Comida llegó al 80% del presupuesto.</p>
+    </form>
+    <div>
+      <p style="font-size:42px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em">$184.320</p>
+      <ul>
+        <li><span>Verdulería · Comida</span><span>−$8.900</span></li>
+        <li><span>Subte · Transporte</span><span>−$1.250</span></li>
+        <li><span>Sueldo · Ingreso</span><span>+$420.000</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body>
+</html>

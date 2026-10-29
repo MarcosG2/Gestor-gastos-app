@@ -2,10 +2,89 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@font-face {
+  font-family: "Schibsted Grotesk";
+  src: url("./fonts/schibsted-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Schibsted Grotesk";
+  src: url("./fonts/schibsted-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Schibsted Grotesk";
+  src: url("./fonts/schibsted-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --ground: #f4f6f5;
+  --ink: #141816;
+  --muted: #3e4c45;
+  --paper: #ffffff;
+  --line: #d5ddd8;
+  --band: #1e4d3f;
+  --on-band: #f4f6f5;
+  --link: #1a4538;
+  --warn: #8a5414;
+  --warn-bg: #f3ecdf;
+  --danger: #9f2d2d;
+  --income: #1a4538;
+  color-scheme: light;
+}
+
+.dark {
+  --ground: #121614;
+  --ink: #e7eeea;
+  --muted: #b7c4bc;
+  --paper: #1a211e;
+  --line: #2c3833;
+  --band: #1e4d3f;
+  --on-band: #f4f6f5;
+  --link: #b7ddd4;
+  --warn: #e4c07a;
+  --warn-bg: #2a2418;
+  --danger: #f0b4b4;
+  --income: #b7ddd4;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: "Schibsted Grotesk", "Segoe UI", sans-serif;
+  --color-ground: var(--ground);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-paper: var(--paper);
+  --color-line: var(--line);
+  --color-band: var(--band);
+  --color-on-band: var(--on-band);
+  --color-link: var(--link);
+  --color-warn: var(--warn);
+  --color-warnbg: var(--warn-bg);
+  --color-danger: var(--danger);
+  --color-income: var(--income);
+}
+
 html,
 body {
   overflow-x: clip;
   max-width: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--ground);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
 #root {
@@ -13,10 +92,141 @@ body {
   overflow-x: clip;
 }
 
-/* Evita que inputs nativos (fecha) desborden en Android/MIUI */
+::selection {
+  background: var(--band);
+  color: var(--on-band);
+}
+
+:focus-visible {
+  outline: 2px solid var(--on-band);
+  outline-offset: 2px;
+}
+
+.dark :focus-visible,
+:focus-visible {
+  outline-color: var(--link);
+}
+
+input,
+select,
+textarea {
+  caret-color: var(--band);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
 input[type="date"],
 input[type="number"] {
   max-width: 100%;
   min-width: 0;
 }
 
+* {
+  scrollbar-color: var(--band) var(--ground);
+}
+
+.shadow-sm,
+.shadow,
+.shadow-md,
+.shadow-lg,
+.shadow-xl,
+.shadow-2xl {
+  box-shadow: none;
+}
+
+.rounded-2xl,
+.rounded-3xl {
+  border-radius: 6px;
+}
+
+.band {
+  background: var(--band);
+  color: var(--on-band);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 32px;
+}
+
+.band-kicker {
+  font-size: 16px;
+  font-weight: 400;
+  text-transform: capitalize;
+}
+
+.band-figure {
+  margin-top: 8px;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  font-variant-numeric: tabular-nums;
+}
+
+.band-figure[data-negative="true"] {
+  color: #f3d7a1;
+}
+
+.band-side {
+  display: flex;
+  gap: 32px;
+  font-variant-numeric: tabular-nums;
+}
+
+.band-side span {
+  display: block;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.band-side strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.band-action {
+  background: var(--on-band);
+  color: var(--band);
+  border: 0;
+  border-radius: 6px;
+  padding: 14px 18px;
+  font: 700 16px/1 var(--font-sans);
+  cursor: pointer;
+}
+
+.band-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ledger {
+  border-top: 1px solid var(--line);
+}
+
+.ledger-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

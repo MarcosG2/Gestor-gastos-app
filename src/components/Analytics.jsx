@@ -96,19 +96,19 @@ export default function Analytics({ session }) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-3xl font-bold text-gray-800">Análisis de Gastos</h2>
-        <Link to="/budgets" className="text-sm font-medium text-indigo-600 hover:underline">
+        <h2 className="text-3xl font-bold text-ink">Análisis de Gastos</h2>
+        <Link to="/budgets" className="text-sm font-medium text-link hover:underline">
           Configurar presupuestos →
         </Link>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-8">
-          <h3 className="font-bold text-gray-800 mb-4 text-lg">Distribución Visual</h3>
+        <div className="lg:col-span-2 bg-paper p-8 rounded-2xl shadow-sm border border-line flex flex-col gap-8">
+          <h3 className="font-bold text-ink mb-4 text-lg">Distribución Visual</h3>
           {loading ? (
-            <div className="animate-pulse h-[400px] md:h-[500px] bg-gray-100 rounded-2xl" />
+            <div className="animate-pulse h-[400px] md:h-[500px] bg-paper rounded-2xl" />
           ) : chartData.length === 0 ? (
-            <p className="text-gray-500 text-center py-16">No hay gastos en este mes.</p>
+            <p className="text-muted text-center py-16">No hay gastos en este mes.</p>
           ) : (
             <div className="w-full h-[400px] md:h-[500px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -129,7 +129,7 @@ export default function Analytics({ session }) {
             </div>
           )}
 
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-6 bg-gray-50 p-4 rounded-lg">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-6 bg-paper p-4 rounded-lg">
             <button
               type="button"
               onClick={() => {
@@ -140,12 +140,12 @@ export default function Analytics({ session }) {
                   setMesSeleccionado(mesSeleccionado - 1)
                 }
               }}
-              className="px-4 py-2 bg-slate-300 text-gray-700 rounded-md hover:bg-slate-400 font-medium transition-colors"
+              className="px-4 py-2 bg-ground text-ink rounded-md hover:bg-line font-medium transition-colors"
             >
               &larr; Mes Anterior
             </button>
 
-            <span className="font-bold text-gray-700">
+            <span className="font-bold text-ink">
               Mes: {mesSeleccionado + 1} / {anioSeleccionado}
             </span>
 
@@ -159,7 +159,7 @@ export default function Analytics({ session }) {
                   setMesSeleccionado(mesSeleccionado + 1)
                 }
               }}
-              className="px-4 py-2 bg-slate-300 text-gray-700 rounded-md hover:bg-slate-400 font-medium transition-colors"
+              className="px-4 py-2 bg-ground text-ink rounded-md hover:bg-line font-medium transition-colors"
             >
               Mes Siguiente &rarr;
             </button>
@@ -167,30 +167,30 @@ export default function Analytics({ session }) {
         </div>
 
         <div className="col-span-1 space-y-6">
-          <div className="bg-white p-4 md:p-8 rounded-3xl shadow-xl h-fit">
-            <h3 className="font-bold text-gray-800 mb-6 text-lg">Top Gastos</h3>
+          <div className="bg-paper p-4 md:p-8 rounded-3xl shadow-xl h-fit">
+            <h3 className="font-bold text-ink mb-6 text-lg">Top Gastos</h3>
             <div className="space-y-4">
-              {!loading && chartData.length === 0 && <p className="text-gray-400">No hay datos aún.</p>}
+              {!loading && chartData.length === 0 && <p className="text-muted">No hay datos aún.</p>}
               {[...chartData].sort((a, b) => b.value - a.value).map((item) => (
                 <div key={item.name} className="flex justify-between items-center border-b border-gray-50 pb-3 last:border-0">
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: item.fill }} />
-                    <span className="font-medium text-gray-600">{item.name}</span>
+                    <span className="font-medium text-muted">{item.name}</span>
                   </div>
-                  <span className="font-bold text-gray-900 text-lg">${item.value.toLocaleString('es-AR')}</span>
+                  <span className="font-bold text-ink text-lg">${item.value.toLocaleString('es-AR')}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-white p-4 md:p-8 rounded-3xl shadow-xl h-fit">
-            <h3 className="font-bold text-gray-800 mb-4 text-lg">Presupuestos del mes</h3>
+          <div className="bg-paper p-4 md:p-8 rounded-3xl shadow-xl h-fit">
+            <h3 className="font-bold text-ink mb-4 text-lg">Presupuestos del mes</h3>
             {loading ? (
-              <div className="animate-pulse h-24 bg-gray-100 rounded-xl" />
+              <div className="animate-pulse h-24 bg-paper rounded-xl" />
             ) : budgetProgress.length === 0 ? (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted">
                 Sin límites definidos.{' '}
-                <Link to="/budgets" className="text-indigo-600 font-medium hover:underline">
+                <Link to="/budgets" className="text-link font-medium hover:underline">
                   Agregar presupuestos
                 </Link>
               </p>
@@ -199,21 +199,21 @@ export default function Analytics({ session }) {
                 {budgetProgress.map((row) => (
                   <li key={row.id}>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium text-gray-700 flex items-center gap-1">
+                      <span className="font-medium text-ink flex items-center gap-1">
                         {row.name}
                         {row.over && <AlertTriangle className="w-4 h-4 text-amber-500" aria-label="Superado" />}
                       </span>
-                      <span className={row.over ? 'text-rose-600 font-bold' : 'text-gray-600'}>
+                      <span className={row.over ? 'text-rose-600 font-bold' : 'text-muted'}>
                         ${row.spent.toLocaleString('es-AR')} / ${row.limit.toLocaleString('es-AR')}
                       </span>
                     </div>
-                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-2.5 bg-paper rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all ${row.over ? 'bg-rose-500' : row.pct >= 80 ? 'bg-amber-400' : 'bg-emerald-500'}`}
                         style={{ width: `${row.pct}%` }}
                       />
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">{Math.round(row.pct)}% usado</p>
+                    <p className="text-xs text-muted mt-1">{Math.round(row.pct)}% usado</p>
                   </li>
                 ))}
               </ul>

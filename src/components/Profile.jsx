@@ -48,12 +48,12 @@ function isStandaloneDisplay() {
 
 function StatRow({ label, value, loading }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-3 border-b border-gray-100 dark:border-slate-700 last:border-0">
-      <span className="text-sm text-gray-600 dark:text-gray-400">{label}</span>
+    <div className="flex items-center justify-between gap-4 py-3 border-b border-line dark:border-line last:border-0">
+      <span className="text-sm text-muted dark:text-muted">{label}</span>
       {loading ? (
-        <span className="inline-block h-6 w-10 rounded-md bg-gray-100 animate-pulse" aria-hidden />
+        <span className="inline-block h-6 w-10 rounded-md bg-paper animate-pulse" aria-hidden />
       ) : (
-        <span className="text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-100">{value}</span>
+        <span className="text-lg font-semibold tabular-nums text-ink dark:text-ink">{value}</span>
       )}
     </div>
   )
@@ -200,18 +200,18 @@ export default function Profile({ session }) {
   return (
     <div className="mx-auto w-full min-w-0 max-w-lg space-y-6">
       <header className="min-w-0">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Mi perfil</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <h1 className="text-2xl font-bold text-ink tracking-tight">Mi perfil</h1>
+        <p className="mt-1 text-sm text-muted">
           Datos de la cuenta y resumen de tu actividad en el gestor.
         </p>
       </header>
 
       <section
-        className="rounded-2xl border border-gray-200/80 bg-white shadow-sm overflow-hidden min-w-0"
+        className="rounded-2xl border border-line/80 bg-paper shadow-sm overflow-hidden min-w-0"
         aria-labelledby="profile-account-heading"
       >
-        <div className="border-b border-gray-100 px-4 py-3 sm:px-5">
-          <h2 id="profile-account-heading" className="text-sm font-semibold text-gray-800">
+        <div className="border-b border-line px-4 py-3 sm:px-5">
+          <h2 id="profile-account-heading" className="text-sm font-semibold text-ink">
             Cuenta
           </h2>
         </div>
@@ -219,7 +219,7 @@ export default function Profile({ session }) {
         <div className="p-4 sm:p-5 space-y-5 min-w-0">
           <div className="flex items-start gap-3 min-w-0">
             <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-800"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-band/15 text-sm font-bold text-link"
               aria-hidden
             >
               {nameLoading ? '…' : avatarLabel}
@@ -237,7 +237,7 @@ export default function Profile({ session }) {
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     maxLength={80}
-                    className="min-w-0 flex-1 rounded-xl border border-gray-200 px-3 py-2.5 text-base font-semibold text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                    className="min-w-0 flex-1 rounded-xl border border-line px-3 py-2.5 text-base font-semibold text-ink outline-none focus:border-link focus:ring-2 focus:ring-link/30"
                     autoFocus
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleSaveName()
@@ -250,7 +250,7 @@ export default function Profile({ session }) {
                       onClick={handleSaveName}
                       disabled={isSaving}
                       aria-label="Guardar nombre"
-                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 cursor-pointer"
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-band text-white hover:bg-band disabled:opacity-50 cursor-pointer"
                     >
                       {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
                     </button>
@@ -259,7 +259,7 @@ export default function Profile({ session }) {
                       onClick={cancelEditName}
                       disabled={isSaving}
                       aria-label="Cancelar edición"
-                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer"
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-paper text-ink hover:bg-line cursor-pointer"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -267,12 +267,12 @@ export default function Profile({ session }) {
                 </div>
               ) : (
                 <div className="flex items-center gap-2 min-w-0">
-                  <p className="text-lg font-semibold text-gray-900 truncate">{userName}</p>
+                  <p className="text-lg font-semibold text-ink truncate">{userName}</p>
                   <button
                     type="button"
                     onClick={startEditName}
                     aria-label="Editar nombre"
-                    className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-indigo-50 hover:text-indigo-700 cursor-pointer"
+                    className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-band/10 hover:text-link cursor-pointer"
                   >
                     <Edit2 className="h-4 w-4" />
                   </button>
@@ -283,36 +283,36 @@ export default function Profile({ session }) {
 
           <dl className="space-y-3 text-sm">
             <div className="flex gap-3 min-w-0">
-              <dt className="flex shrink-0 items-center gap-2 text-gray-500">
-                <Mail className="h-4 w-4 text-indigo-600" aria-hidden />
+              <dt className="flex shrink-0 items-center gap-2 text-muted">
+                <Mail className="h-4 w-4 text-link" aria-hidden />
                 Email
               </dt>
-              <dd className="min-w-0 break-all text-gray-800">{session.user.email}</dd>
+              <dd className="min-w-0 break-all text-ink">{session.user.email}</dd>
             </div>
             <div className="flex gap-3 min-w-0">
-              <dt className="flex shrink-0 items-center gap-2 text-gray-500">
-                <Calendar className="h-4 w-4 text-indigo-600" aria-hidden />
+              <dt className="flex shrink-0 items-center gap-2 text-muted">
+                <Calendar className="h-4 w-4 text-link" aria-hidden />
                 Alta
               </dt>
-              <dd className="text-gray-800 capitalize">{joinDate}</dd>
+              <dd className="text-ink capitalize">{joinDate}</dd>
             </div>
           </dl>
         </div>
       </section>
 
       <section
-        className="rounded-2xl border border-gray-200/80 bg-white shadow-sm overflow-hidden min-w-0"
+        className="rounded-2xl border border-line/80 bg-paper shadow-sm overflow-hidden min-w-0"
         aria-labelledby="profile-activity-heading"
       >
-        <div className="flex items-center justify-between gap-2 border-b border-gray-100 px-4 py-3 sm:px-5">
-          <h2 id="profile-activity-heading" className="text-sm font-semibold text-gray-800">
+        <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-3 sm:px-5">
+          <h2 id="profile-activity-heading" className="text-sm font-semibold text-ink">
             Actividad registrada
           </h2>
           <button
             type="button"
             onClick={loadStats}
             disabled={statsLoading}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 cursor-pointer"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-link hover:bg-band/10 disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw className={`h-4 w-4 ${statsLoading ? 'animate-spin' : ''}`} aria-hidden />
             Actualizar
@@ -335,20 +335,20 @@ export default function Profile({ session }) {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-gray-200/80 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-hidden min-w-0">
-        <div className="border-b border-gray-100 dark:border-slate-700 px-4 py-3 sm:px-5">
-          <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-            <Moon className="h-4 w-4 text-indigo-600" aria-hidden />
+      <section className="rounded-2xl border border-line/80 dark:border-line bg-paper dark:bg-paper shadow-sm overflow-hidden min-w-0">
+        <div className="border-b border-line dark:border-line px-4 py-3 sm:px-5">
+          <h2 className="text-sm font-semibold text-ink dark:text-ink flex items-center gap-2">
+            <Moon className="h-4 w-4 text-link" aria-hidden />
             Apariencia y app
           </h2>
         </div>
         <div className="p-4 sm:p-5 space-y-4">
-          <label className="block text-sm text-gray-600 dark:text-gray-400">
+          <label className="block text-sm text-muted dark:text-muted">
             Tema
             <select
               value={mode}
               onChange={(e) => setMode(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-gray-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3 py-2"
+              className="mt-1 w-full rounded-xl border border-line dark:border-line dark:bg-ground dark:text-ink px-3 py-2"
             >
               <option value="system">Sistema</option>
               <option value="light">Claro</option>
@@ -361,7 +361,7 @@ export default function Profile({ session }) {
               type="button"
               onClick={handleToggleAppLock}
               disabled={lockBusy}
-              className="w-full flex items-center justify-center gap-2 min-h-11 rounded-xl border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-semibold hover:bg-indigo-50 dark:hover:bg-indigo-950/40 disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 min-h-11 rounded-xl border border-line text-link dark:text-link font-semibold hover:bg-band/10 dark:hover:bg-band/20 disabled:opacity-50"
             >
               {lockBusy ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -371,13 +371,13 @@ export default function Profile({ session }) {
               {appLockOn ? 'Desactivar bloqueo al abrir' : 'Activar bloqueo al abrir'}
             </button>
           ) : (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-muted dark:text-muted">
               El bloqueo con biometría no está disponible en este navegador.
             </p>
           )}
 
           {showIosInstall && (
-            <div className="rounded-xl bg-indigo-50 dark:bg-indigo-950/40 p-4 text-sm text-indigo-900 dark:text-indigo-100 flex gap-3">
+            <div className="rounded-xl bg-band/10 dark:bg-band/20 p-4 text-sm text-ink dark:text-ink flex gap-3">
               <Smartphone className="h-5 w-5 shrink-0" aria-hidden />
               <p>
                 En iPhone/iPad: tocá <strong>Compartir</strong> en Safari y elegí{' '}
@@ -389,7 +389,7 @@ export default function Profile({ session }) {
       </section>
 
       <section
-        className="rounded-2xl border border-rose-200 bg-white dark:bg-slate-800 dark:border-rose-900 shadow-sm overflow-hidden min-w-0"
+        className="rounded-2xl border border-rose-200 bg-paper dark:bg-paper dark:border-rose-900 shadow-sm overflow-hidden min-w-0"
         aria-labelledby="profile-danger-heading"
       >
         <div className="border-b border-rose-100 bg-rose-50/80 px-4 py-3 sm:px-5">
@@ -402,7 +402,7 @@ export default function Profile({ session }) {
           </h2>
         </div>
         <div className="p-4 sm:p-5 space-y-4">
-          <p className="text-sm text-gray-700 leading-relaxed">
+          <p className="text-sm text-ink leading-relaxed">
             Eliminá gastos, ingresos, presupuestos y categorías. Tu usuario y el inicio de sesión
             no se borran. Las categorías por defecto no se recrean solas: tendrás que crearlas de
             nuevo.
@@ -411,7 +411,7 @@ export default function Profile({ session }) {
             type="button"
             onClick={() => setIsResetModalOpen(true)}
             disabled={resetLoading}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-rose-300 bg-white px-4 py-3 text-sm font-semibold text-rose-700 hover:bg-rose-600 hover:text-white disabled:opacity-50 cursor-pointer transition-colors"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-rose-300 bg-paper px-4 py-3 text-sm font-semibold text-rose-700 hover:bg-rose-600 hover:text-white disabled:opacity-50 cursor-pointer transition-colors"
           >
             <Trash2 className="h-4 w-4" aria-hidden />
             {resetLoading ? 'Borrando…' : 'Borrar todos mis datos'}

@@ -1,10 +1,26 @@
 export const CATEGORY_COLORS = [
   { id: 'red', class: 'bg-red-100 text-red-600', bg: 'bg-red-500' },
-  { id: 'blue', class: 'bg-blue-100 text-blue-600', bg: 'bg-blue-500' },
-  { id: 'green', class: 'bg-green-100 text-green-600', bg: 'bg-green-500' },
+  { id: 'orange', class: 'bg-orange-100 text-orange-600', bg: 'bg-orange-500' },
+  { id: 'amber', class: 'bg-amber-100 text-amber-600', bg: 'bg-amber-500' },
   { id: 'yellow', class: 'bg-yellow-100 text-yellow-600', bg: 'bg-yellow-500' },
+  { id: 'lime', class: 'bg-lime-100 text-lime-700', bg: 'bg-lime-500' },
+  { id: 'green', class: 'bg-green-100 text-green-600', bg: 'bg-green-500' },
+  { id: 'emerald', class: 'bg-emerald-100 text-emerald-600', bg: 'bg-emerald-500' },
+  { id: 'teal', class: 'bg-teal-100 text-teal-600', bg: 'bg-teal-500' },
+  { id: 'cyan', class: 'bg-cyan-100 text-cyan-600', bg: 'bg-cyan-500' },
+  { id: 'sky', class: 'bg-sky-100 text-sky-600', bg: 'bg-sky-500' },
+  { id: 'blue', class: 'bg-blue-100 text-blue-600', bg: 'bg-blue-500' },
+  { id: 'indigo', class: 'bg-indigo-100 text-indigo-600', bg: 'bg-indigo-500' },
+  { id: 'violet', class: 'bg-violet-100 text-violet-600', bg: 'bg-violet-500' },
   { id: 'purple', class: 'bg-purple-100 text-purple-600', bg: 'bg-purple-500' },
+  { id: 'fuchsia', class: 'bg-fuchsia-100 text-fuchsia-600', bg: 'bg-fuchsia-500' },
   { id: 'pink', class: 'bg-pink-100 text-pink-600', bg: 'bg-pink-500' },
+  { id: 'rose', class: 'bg-rose-100 text-rose-600', bg: 'bg-rose-500' },
+  { id: 'slate', class: 'bg-slate-200 text-slate-700', bg: 'bg-slate-500' },
+  { id: 'gray', class: 'bg-gray-200 text-gray-700', bg: 'bg-gray-500' },
+  { id: 'zinc', class: 'bg-zinc-200 text-zinc-700', bg: 'bg-zinc-500' },
+  { id: 'stone', class: 'bg-stone-200 text-stone-700', bg: 'bg-stone-500' },
+  { id: 'neutral', class: 'bg-neutral-200 text-neutral-700', bg: 'bg-neutral-500' },
 ]
 
 export const DEFAULT_CATEGORIES = [

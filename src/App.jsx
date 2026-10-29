@@ -51,9 +51,9 @@ function App() {
 
   if (isInitializing) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-300 dark:bg-slate-900">
-        <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
-        <p className="text-gray-600 dark:text-gray-300 font-medium animate-pulse">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-ground text-ink">
+        <Loader2 className="w-12 h-12 text-band animate-spin mb-4" />
+        <p className="text-muted font-medium">
           Cargado tu información...
         </p>
       </div>
@@ -71,12 +71,12 @@ function App() {
             <AppLockGate session={session}>
               <BrowserRouter>
                 <OfflineBanner />
-                <div className="min-h-screen overflow-x-clip bg-slate-300 dark:bg-slate-900">
+                <div className="min-h-screen overflow-x-clip bg-ground text-ink">
                   <Sidebar />
-                  <main className="min-w-0 md:ml-64 px-3 sm:px-4 md:px-8 pb-8 pt-24 md:pt-8 transition-all">
+                  <main className="min-w-0 md:ml-60 px-4 md:px-8 pb-12 pt-20 md:pt-8">
                     <Suspense
                       fallback={
-                        <div className="flex justify-center items-center mt-20 text-gray-500 dark:text-gray-400 font-medium animate-pulse">
+                        <div className="flex justify-center items-center mt-20 text-muted font-medium">
                           Cargando pantalla...
                         </div>
                       }

@@ -43,18 +43,18 @@ export default function AppLockGate({ children }) {
   if (!locked) return children
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white px-6">
-      <Fingerprint className="w-16 h-16 text-indigo-400 mb-4" />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-band text-on-band px-6">
+      <Fingerprint className="w-16 h-16 text-on-band mb-4" />
       <h1 className="text-xl font-bold mb-2">App protegida</h1>
-      <p className="text-slate-300 text-sm text-center mb-6 max-w-sm">
+      <p className="text-on-band/80 text-sm text-center mb-6 max-w-sm">
         Usá biometría o PIN del dispositivo para continuar.
       </p>
-      {error && <p className="text-rose-300 text-sm mb-4">{error}</p>}
+      {error && <p className="text-[#f3d7a1] text-sm mb-4">{error}</p>}
       <button
         type="button"
         onClick={tryUnlock}
         disabled={checking}
-        className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 px-6 py-3 rounded-xl font-bold disabled:opacity-50"
+        className="inline-flex items-center gap-2 bg-on-band text-band px-6 py-3 rounded-md font-bold disabled:opacity-50"
       >
         {checking ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
         Desbloquear
