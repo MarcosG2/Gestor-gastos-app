@@ -47,7 +47,7 @@ El usuario fijó la identidad visual: moderna, paleta limpia, espaciado consiste
 
 ## Evidence on Hand
 
-Código y copy de la SPA en `web/src`. No hay testimonios, precios ni métricas de uso para citar.
+Código y copy de la SPA en `web/src`. Capturas de referencia en `web/docs/screenshots/` (panel e historial). No hay testimonios, precios ni métricas de uso para citar.
 
 ## Product Principles
 

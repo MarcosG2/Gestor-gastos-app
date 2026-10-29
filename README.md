@@ -2,6 +2,12 @@
 
 Aplicación web para registrar **gastos e ingresos**, categorías, presupuestos mensuales, historial con export CSV y gráficos. Backend: [Supabase](https://supabase.com) (Auth + Postgres con RLS).
 
+## Capturas
+
+| Panel (balance y nuevo gasto) | Historial (filtros y export CSV) |
+| --- | --- |
+| ![Panel del mes](./docs/screenshots/panel.png) | ![Historial de gastos](./docs/screenshots/historial.png) |
+
 ## Requisitos
 
 - Node.js 20+ (22 recomendado en CI)
